@@ -2,14 +2,18 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Home    from './pages/Home'
-import Blog    from './pages/Blog'
+import Home from './pages/Home'
+import Blog from './pages/Blog'
 import Article from './pages/Article'
-import About   from './pages/About'
-import News    from './pages/News'
+import About from './pages/About'
+import News from './pages/News'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
 import NewsArticlePage from './pages/Newsletter'
+import Gallery from './pages/Gallery'
+import Login from './pages/Login'
+import CreatePost from './pages/CreatePost'
+import { AuthProvider } from './context/AuthContext'
 
 
 export default function App() {
@@ -21,21 +25,26 @@ export default function App() {
   }, [pathname])
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <div className="flex-1">
-        <Routes>
-          <Route path="/"          element={<Home />} />
-          <Route path="/blog"      element={<Blog />} />
-          <Route path="/blog/:slug" element={<Article />} />
-          <Route path="/about"     element={<About />} />
-          <Route path="/news"      element={<News />} />
-          <Route path="/contact"   element={<Contact />} />
-          <Route path="/newsletter/:slug" element={<NewsArticlePage />} />
-          <Route path="*"          element={<NotFound />} />
-        </Routes>
+    <AuthProvider>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<Article />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/newsletter/:slug" element={<NewsArticlePage />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/create-post" element={<CreatePost />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </AuthProvider>
   )
 }

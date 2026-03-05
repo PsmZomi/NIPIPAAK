@@ -22,12 +22,12 @@ export default function About() {
   useReveal()
 
   return (
-    <main className="pt-[105px] mt-8 lg:pt-[89px]">
+    <main className="pt-[130px] lg:pt-[115px]">
 
       {/* Hero */}
-      <div className="bg-ink py-16 lg:py-24">
+      <div className="bg-ink py-16 lg:py-10">
         <div className="max-w-3xl mx-auto px-5 lg:px-10 text-center">
-          <p className="section-label text-white/40 mb-4">About Nipipaak</p>
+          <p className="section-label text-white/40 mb-4">About NIPIPAAK</p>
           <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-5"
             style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.03em' }}>
             An independent newsletter<br />

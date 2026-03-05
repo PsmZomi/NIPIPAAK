@@ -30,7 +30,7 @@ export default function Contact() {
   }
 
   return (
-    <main className="pt-[105px] lg:pt-[89px]">
+   <main className="pt-[130px] lg:pt-[115px]">
 
       {/* Header */}
       <div className="border-b border-border py-14 lg:py-20">
