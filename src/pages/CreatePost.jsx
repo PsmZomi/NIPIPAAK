@@ -132,7 +132,7 @@ export default function CreatePost() {
                         />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt (Short Summary)</label>
                         <textarea
                             value={excerpt}
@@ -141,7 +141,7 @@ export default function CreatePost() {
                             rows={2}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                         />
-                    </div>
+                    </div> */}
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>

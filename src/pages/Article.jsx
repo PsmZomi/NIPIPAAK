@@ -20,7 +20,7 @@ export default function Article() {
         const blogsQ = query(collection(db, 'blogs'), where('slug', '==', slug))
         const blogsSnap = await getDocs(blogsQ)
         if (!blogsSnap.empty) {
-          const found = { id: blogsSnap.docs[0].id, ...blogsSnap.docs[0].data() }
+          const found = { id: blogsSnap.docs[0].id, type: 'blog', ...blogsSnap.docs[0].data() }
           setPost(found)
           setLoading(false)
           return
@@ -30,7 +30,7 @@ export default function Article() {
         const newsQ = query(collection(db, 'news'), where('slug', '==', slug))
         const newsSnap = await getDocs(newsQ)
         if (!newsSnap.empty) {
-          const found = { id: newsSnap.docs[0].id, ...newsSnap.docs[0].data() }
+          const found = { id: newsSnap.docs[0].id, type: 'news', ...newsSnap.docs[0].data() }
           setPost(found)
           setLoading(false)
           return
@@ -65,35 +65,49 @@ export default function Article() {
   return (
     <main className="pt-[130px] lg:pt-[115px]">
 
-      {/* Article header */}
-      <div className={`bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black'} py-16 lg:py-24`}>
-        <div className="max-w-3xl mx-auto px-5 lg:px-10 text-center">
-          <span className="inline-block tag border-white/50 text-white/80 mb-5">{post.category}</span>
-          <h1 className="text-3xl lg:text-5xl font-bold text-white leading-tight mb-6"
-            style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.025em' }}>
-            {post.title}
-          </h1>
-          <p className="text-white/70 text-base lg:text-lg leading-relaxed mb-8 max-w-xl mx-auto">
-            {post.excerpt}
-          </p>
-          <div className="flex items-center justify-center gap-4 text-white/60 text-xs font-mono">
-            <span>By {post.author}</span>
-            <span>·</span>
-            <span>{post.date}</span>
-            <span>·</span>
-            <span>{post.readTime || '5 min'} read</span>
+      {/* Article Hero - Side by Side Layout */}
+      <div className={`bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black'} py-4 lg:py-4`}>
+        <div className="max-w-7xl mx-auto px-5 lg:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left side: Image */}
+            <div className="w-full order-1 lg:order-1">
+              {post.image ? (
+                <div className="rounded-2xl overflow-hidden shadow-2xl aspect-video lg:aspect-[16/10] relative">
+                  <img src={post.image} alt={post.title} className="w-full h-full object-cover absolute inset-0" />
+                </div>
+              ) : (
+                <div className="rounded-2xl overflow-hidden shadow-2xl bg-white/10 aspect-video lg:aspect-[16/10] flex items-center justify-center text-8xl">
+                  {post.emoji || '📝'}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Headers and Meta */}
+            <div className="text-left order-2 lg:order-2">
+              <span className="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-white/20 text-white rounded-full mb-6">
+                {post.category}
+              </span>
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-sm"
+                style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.025em' }}>
+                {post.title}
+              </h1>
+              {/* <p className="text-white/80 text-lg lg:text-xl leading-relaxed mb-8">
+                {post.excerpt}
+              </p> */}
+              <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm font-mono mt-auto pt-6 border-t border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg shadow-inner">👤</div>
+                  <span className="text-white font-semibold">{post.author}</span>
+                </div>
+                <span className="opacity-50 hidden sm:inline">·</span>
+                <span>{post.date}</span>
+                <span className="opacity-50 hidden sm:inline">·</span>
+                <span>{post.readTime || '5 min'} read</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Featured image (for dynamic posts with images) */}
-      {post.image && (
-        <div className="max-w-4xl mx-auto px-5 lg:px-10 -mt-8">
-          <div className="rounded-xl overflow-hidden shadow-2xl">
-            <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
-          </div>
-        </div>
-      )}
 
       {/* Article body */}
       <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">

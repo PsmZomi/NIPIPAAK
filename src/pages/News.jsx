@@ -38,7 +38,7 @@ export default function NewsPage() {
       <div className="border-b border-zinc-200 py-16">
         <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-between items-center gap-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-zinc-500 mb-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-500 mb-4">
               Latest Updates
             </p>
             <h1 className="text-4xl md:text-5xl font-bold leading-tight">
@@ -63,7 +63,7 @@ export default function NewsPage() {
           {allPosts.map((post, i) => (
             <Link
               key={post.id}
-              to={`/blog/${post.slug}`}
+              to={`/news/${post.slug}`}
               className={`group reveal d${(i % 6) + 1}`}
             >
               <div className="overflow-hidden bg-white border border-zinc-200 hover:shadow-lg transition-all duration-300 rounded-xl h-full flex flex-col">
@@ -87,7 +87,7 @@ export default function NewsPage() {
 
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1">
-                  <span className="text-[10px] uppercase tracking-widest text-zinc-500">
+                  <span className="text-[10px] uppercase tracking-widest text-emerald-500">
                     {post.category}
                   </span>
 

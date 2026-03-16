@@ -11,7 +11,7 @@ export default function Home() {
   const [latestNews, setLatestNews] = useState([])
   const [latestBlogs, setLatestBlogs] = useState([])
   useReveal()
-  
+
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Home() {
     <main className="pt-[105px] lg:pt-[89px] bg-paper">
 
       {/* 2. BANNER PLACEMENT: Right at the top of the content */}
-      {/* <HeroBanner /> */}
+      <HeroBanner />
 
       {/* <Newsletter /> */}
 
@@ -50,7 +50,7 @@ export default function Home() {
               🔴 Breaking / Latest News
             </p>
 
-            <Link to={`/blog/${latestNews[0].slug}`} className="group block">
+            <Link to={`/news/${latestNews[0].slug}`} className="group block">
               <div className="grid lg:grid-cols-2 gap-0 border border-red-200 overflow-hidden rounded-xl hover:shadow-xl transition-all duration-500 bg-white dark:bg-gray-900">
 
                 {/* Image Side */}
@@ -120,7 +120,7 @@ export default function Home() {
             {latestNews.slice(1, 4).map((news, i) => (
               <Link
                 key={news.id}
-                to={`/blog/${news.slug}`}
+                to={`/news/${news.slug}`}
                 className={`reveal d${i + 1} group block bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-border hover:shadow-md transition-all duration-300`}
               >
                 <div className="h-44 bg-zinc-100 flex items-center justify-center overflow-hidden relative">

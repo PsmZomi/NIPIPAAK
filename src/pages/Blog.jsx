@@ -102,7 +102,7 @@ export default function Blog() {
                     {/* Image on left - reduced size */}
                     <div className="lg:w-1/2 flex-shrink-0 bg-gray-100 flex items-center justify-center relative">
                       {filtered[0].image ? (
-                        <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full w-full overflow-hidden">
+                        <div className="relative aspect-video lg:aspect-[4/3] w-full overflow-hidden">
                           <img
                             src={filtered[0].image}
                             alt={filtered[0].title}
@@ -111,7 +111,7 @@ export default function Blog() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:from-transparent lg:via-transparent lg:to-transparent" />
                         </div>
                       ) : (
-                        <div className={`h-full w-full min-h-[300px] bg-gradient-to-br ${filtered[0].gradient || 'from-gray-800 to-gray-900'} flex items-center justify-center text-5xl`}>
+                        <div className={`h-full w-full min-h-[250px] bg-gradient-to-br ${filtered[0].gradient || 'from-gray-800 to-gray-900'} flex items-center justify-center text-5xl`}>
                           {filtered[0].emoji || '📝'}
                         </div>
                       )}

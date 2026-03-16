@@ -14,29 +14,40 @@ export default function HeroBanner() {
     }, []);
 
     if (banners.length === 0) return null;
+    // Determine if we need to animate (more than 1 banner)
+    const shouldAnimate = banners.length > 1;
+
+    // If animating, duplicate the banners to create a seamless loop
+    const displayBanners = shouldAnimate ? [...banners, ...banners] : banners;
 
     return (
-        /* Reduced the height and added a cleaner background for better readability */
-        <div className="bg-white border-b border-zinc-100 overflow-hidden sticky top-0 z-50 pt-8">
-            {/* Height is set to 40px on mobile and 50px on desktop for a slim, sleek look */}
-            <div className="marquee-container h-[40px] lg:h-[50px] flex items-center overflow-hidden">
-                <div className="marquee-track flex items-center gap-16 animate-marquee">
-                    {[...banners, ...banners].map((b, i) => {
+        /* Add margin/padding to clear the fixed global header! */
+        <div className="bg-white border-b border-zinc-100 w-full relative overflow-hidden -mt-[105px] lg:-mt-[110px] pt-[105px] lg:pt-[140px]">
+            <div className={`w-full ${shouldAnimate ? 'flex items-center' : ''}`}>
+                <div className={`w-full flex items-center ${shouldAnimate ? 'animate-marquee min-w-[200%] gap-4' : 'justify-center'}`}>
+                    {displayBanners.map((b, i) => {
                         const inner = (
-                            <img
-                                src={b.image}
-                                alt="Advertisement"
-                                /* object-contain ensures the image isn't cropped, 
-                                   while the fixed height keeps it in a wide strip format */
-                                className="h-[25px] lg:h-[30px] w-auto object-contain flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300"
-                            />
+                            <div className="relative flex items-center justify-center w-full max-w-[100vw] h-[100px] md:h-[150px] lg:h-[200px] overflow-hidden bg-black/5">
+                                {/* Blurred Background Layer for filling empty space nicely */}
+                                <div
+                                    className="absolute inset-0 w-full h-full bg-cover bg-center blur-xl opacity-40 scale-110"
+                                    style={{ backgroundImage: `url(${b.image})` }}
+                                />
+
+                                {/* Foreground Crisp Image */}
+                                <img
+                                    src={b.image}
+                                    alt="Announcement Banner"
+                                    className="relative z-10 w-full h-full object-contain drop-shadow-lg"
+                                />
+                            </div>
                         );
                         return b.link ? (
-                            <a key={`${b.id}-${i}`} href={b.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 flex items-center justify-center">
+                            <a key={`${b.id}-${i}`} href={b.link} target="_blank" rel="noopener noreferrer" className={`block ${shouldAnimate ? 'w-[80vw] md:w-[60vw] lg:w-[40vw] flex-shrink-0' : 'w-full'}`}>
                                 {inner}
                             </a>
                         ) : (
-                            <div key={`${b.id}-${i}`} className="flex-shrink-0 flex items-center justify-center">
+                            <div key={`${b.id}-${i}`} className={`block ${shouldAnimate ? 'w-[80vw] md:w-[60vw] lg:w-[40vw] flex-shrink-0' : 'w-full'}`}>
                                 {inner}
                             </div>
                         );
