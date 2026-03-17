@@ -83,28 +83,44 @@ export default function Article() {
             </div>
 
             {/* Right side: Headers and Meta */}
-            <div className="text-left order-2 lg:order-2">
-              <span className="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-white/20 text-white rounded-full mb-6">
-                {post.category}
-              </span>
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-sm"
-                style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.025em' }}>
-                {post.title}
-              </h1>
-              {/* <p className="text-white/80 text-lg lg:text-xl leading-relaxed mb-8">
-                {post.excerpt}
-              </p> */}
-              <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm font-mono mt-auto pt-6 border-t border-white/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg shadow-inner">👤</div>
-                  <span className="text-white font-semibold">{post.author}</span>
-                </div>
-                <span className="opacity-50 hidden sm:inline">·</span>
-                <span>{post.date}</span>
-                <span className="opacity-50 hidden sm:inline">·</span>
-                <span>{post.readTime || '5 min'} read</span>
-              </div>
-            </div>
+     <div className="text-left order-2 lg:order-2">
+  {/* The Category Tag - styled like a library archive label */}
+  <span className="inline-block px-3 py-1 text-[10px] font-mono font-semibold uppercase tracking-[0.2em] bg-white/10 text-white/90 border border-white/20 rounded-sm mb-6 backdrop-blur-md">
+    {post.category}
+  </span>
+
+  {/* The Title - Playfair Display Serif */}
+  <h1 
+    className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-10 drop-shadow-lg"
+    style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.025em' }}
+  >
+    {post.title}
+  </h1>
+
+  {/* Simplified Metadata: Writer & Date Only */}
+  <div className="flex items-center gap-10 text-white/80 text-xs font-mono mt-auto pt-2 border-t border-white/10">
+    
+    {/* Column 1: The Writer */}
+    <div className="flex flex-col gap-1">
+      <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Writer</span>
+      <span className="text-white font-bold tracking-tight text-sm">
+        {post.authorData?.name || post.author || "Anonymous"}
+      </span>
+    </div>
+
+    {/* Elegant Vertical Divider */}
+    <div className="h-8 w-px bg-white/10" />
+
+    {/* Column 2: The Date */}
+    <div className="flex flex-col gap-1">
+      <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Dated</span>
+      <span className="text-white/90 text-sm font-medium">
+        {post.date}
+      </span>
+    </div>
+
+  </div>
+</div>
           </div>
         </div>
       </div>
@@ -123,7 +139,7 @@ export default function Article() {
             👤
           </div>
           <div>
-            <p className="section-label mb-1">Written by</p>
+            <p className="section-label mb-1">Lai Gelh</p>
             <h4 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
               {post.author}
             </h4>

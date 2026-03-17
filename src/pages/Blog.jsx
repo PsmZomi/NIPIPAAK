@@ -96,7 +96,7 @@ export default function Blog() {
               <div className="lg:col-span-2">
                 <Link
                   to={`/blog/${filtered[0].slug}`}
-                  className="group block reveal d1 overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 bg-white dark:bg-gray-900"
+                  className="group block reveal d1 overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 bg-white"
                 >
                   <div className="lg:flex">
                     {/* Image on left - reduced size */}
@@ -111,7 +111,7 @@ export default function Blog() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:from-transparent lg:via-transparent lg:to-transparent" />
                         </div>
                       ) : (
-                        <div className={`h-full w-full min-h-[250px] bg-gradient-to-br ${filtered[0].gradient || 'from-gray-800 to-gray-900'} flex items-center justify-center text-5xl`}>
+                        <div className={`h-full w-full min-h-[250px] bg-gradient-to-br ${filtered[0].gradient || } flex items-center justify-center text-5xl`}>
                           {filtered[0].emoji || '📝'}
                         </div>
                       )}
