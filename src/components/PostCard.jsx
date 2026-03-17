@@ -63,7 +63,7 @@ export default function PostCard({ post, index = 0, size = 'default' }) {
       className={`reveal ${delayClass} card-lift group flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg p-2 transition-colors`}
     >
       {/* Thumbnail - now real image or gradient fallback */}
-      <div className="flex-shrink-0 w-24 h-24 lg:w-28 lg:h-28 rounded-md overflow-hidden shadow-sm bg-zinc-100 flex items-center justify-center">
+      <div className="flex-shrink-0 w-24 h-24 lg:w-28 lg:h-28 rounded-md overflow-hidden shadow-sm bg-emerald-100 flex items-center justify-center">
         {post.image ? (
           <img
             src={post.image || fallbackImage}

@@ -9,7 +9,6 @@ import About from './pages/About'
 import News from './pages/News'
 import Contact from './pages/Contact'
 import NotFound from './pages/NotFound'
-import NewsArticlePage from './pages/Newsletter'
 import Gallery from './pages/Gallery'
 import Login from './pages/Login'
 import CreatePost from './pages/CreatePost'
@@ -37,7 +36,6 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/news" element={<News />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/newsletter/:slug" element={<NewsArticlePage />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-post" element={<CreatePost />} />

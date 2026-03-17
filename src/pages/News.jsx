@@ -91,7 +91,7 @@ export default function NewsPage() {
                     {post.category}
                   </span>
 
-                  <h2 className="mt-3 text-xl font-bold leading-snug group-hover:text-black transition-colors">
+                  <h2 className="mt-3 text-xl font-bold leading-snug transition-colors">
                     {post.title}
                   </h2>
 

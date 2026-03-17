@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import PostCard from '../components/PostCard'
 import { useReveal } from '../components/useReveal'
-import Newsletter from './Newsletter'
 import HeroBanner from '../components/HeroBanner' // 1. IMPORT ADDED HERE
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -38,8 +37,6 @@ export default function Home() {
       {/* 2. BANNER PLACEMENT: Right at the top of the content */}
       <HeroBanner />
 
-      {/* <Newsletter /> */}
-
       {/* ═══════════════════════════════════════════════ */}
       {/* ── SECTION 1: LATEST NEWS (Hero)              ── */}
       {/* ═══════════════════════════════════════════════ */}
@@ -51,7 +48,7 @@ export default function Home() {
             </p>
 
             <Link to={`/news/${latestNews[0].slug}`} className="group block">
-              <div className="grid lg:grid-cols-2 gap-0 border border-red-200 overflow-hidden rounded-xl hover:shadow-xl transition-all duration-500 bg-white dark:bg-gray-900">
+              <div className="grid lg:grid-cols-2 gap-0 border border-red-200 overflow-hidden rounded-xl hover:shadow-xl transition-all duration-500 bg-white">
 
                 {/* Image Side */}
                 <div className="relative aspect-[16/9] lg:aspect-auto overflow-hidden bg-zinc-100 flex items-center justify-center">
@@ -66,7 +63,7 @@ export default function Home() {
                       📰
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/50 via-emerald/20 to-transparent" />
                   <div className="absolute top-4 left-4">
                     <span className="bg-red-600 text-white text-[9px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-sm">
                       {latestNews[0].category || 'News'}
