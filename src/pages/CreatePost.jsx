@@ -13,7 +13,7 @@ export default function CreatePost() {
 
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
-    const [category, setCategory] = useState('Culture');
+    const [author, setAuthor] = useState('');
     const [type, setType] = useState('blog'); // 'blog' or 'news'
     const [content, setContent] = useState('');
     const [image, setImage] = useState('');
@@ -62,11 +62,10 @@ export default function CreatePost() {
                 title,
                 slug,
                 excerpt,
-                category,
                 type,
                 body: bodyArray,
                 image: image || null,
-                author: 'Admin', // Or fetch from user profile if extended
+                author: author || user.displayName || user.email || 'Anonymous',
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
                 readTime: `${Math.max(1, Math.ceil(content.length / 1000))} min`,
                 createdAt: serverTimestamp(),
@@ -108,17 +107,7 @@ export default function CreatePost() {
                             </select>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                            <input
-                                type="text"
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                placeholder="e.g. Culture, Technology"
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
-                        </div>
+
                     </div>
 
                     <div>
@@ -170,6 +159,18 @@ export default function CreatePost() {
                             rows={12}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm leading-relaxed"
                             placeholder="Start writing..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Writer's Name</label>
+                        <input
+                            type="text"
+                            value={author}
+                            onChange={(e) => setAuthor(e.target.value)}
+                            placeholder="Your name or pen name"
+                            required
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
 

@@ -119,6 +119,7 @@ import { auth } from "../firebase";
 const navItems = [
   { label: "Home", to: "/" },
   { label: "News", to: "/news" },
+  { label: "Songs", to: "/songs" },
   { label: "Blog", to: "/blog" },
   
   { label: "Gallery", to: "/gallery" },

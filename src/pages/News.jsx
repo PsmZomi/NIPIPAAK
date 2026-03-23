@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { posts as staticPosts } from "../data/content";
 import { useReveal } from "../components/useReveal";
+import PostCard from "../components/PostCard";
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
@@ -59,54 +60,9 @@ export default function NewsPage() {
       {/* News Grid */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-
           {allPosts.map((post, i) => (
-            <Link
-              key={post.id}
-              to={`/news/${post.slug}`}
-              className={`group reveal d${(i % 6) + 1}`}
-            >
-              <div className="overflow-hidden bg-white border border-zinc-200 hover:shadow-lg transition-all duration-300 rounded-xl h-full flex flex-col">
-
-                {/* Image Upload Support */}
-                <div className="h-56 bg-zinc-100 flex items-center justify-center relative overflow-hidden flex-shrink-0">
-                  {post.image ? (
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div
-                      className={`w-full h-full bg-gradient-to-br ${post.gradient || 'from-gray-800 to-gray-900'} flex items-center justify-center text-5xl`}
-                    >
-                      {post.emoji || '📰'}
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="p-6 flex flex-col flex-1">
-                  <span className="text-[10px] uppercase tracking-widest text-emerald-500">
-                    {post.category}
-                  </span>
-
-                  <h2 className="mt-3 text-xl font-bold leading-snug transition-colors">
-                    {post.title}
-                  </h2>
-
-                  <p className="mt-3 text-sm text-zinc-600 line-clamp-2">
-                    {post.excerpt}
-                  </p>
-
-                  <div className="mt-auto pt-4 text-xs uppercase tracking-wider text-zinc-400">
-                    {post.date} • {post.author}
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <PostCard key={post.id} post={post} index={i % 6} />
           ))}
-
         </div>
       </section>
 

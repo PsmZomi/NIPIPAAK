@@ -108,6 +108,7 @@ const mobileMenu = [
   // Ensure the file is EXACTLY named 'huticon.png' in your /public folder
   { label: "Home", to: "/", icon: "/hut.ico" },
   { label: "Blog", to: "/blog", icon: "📖" },
+  { label: "Songs", to: "/songs", icon: "🎵" },
   { label: "News", to: "/news", icon: "🗞️" },
   { label: "Gallery", to: "/gallery", icon: "✨" },
   { label: "Contact", to: "/contact", icon: "✉️" },
