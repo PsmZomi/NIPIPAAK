@@ -102,9 +102,7 @@ export default function Contact() {
               <p className="section-label mb-5">Our Channels</p>
               <div className="space-y-4">
                 {[
-                  { icon: '✉️', label: 'General', value: 'hello@inkwell.pub' },
-                  { icon: '📝', label: 'Editorial', value: 'edit@inkwell.pub' },
-                  { icon: '🐦', label: 'Twitter', value: '@inkwellmag' },
+                  { icon: '✉️', label: 'General', value: 'salbuu@nipipaak.com' },
                 ].map(item => (
                   <div key={item.label} className="flex items-center gap-4 py-3 border-b border-border">
                     <span className="text-xl w-8">{item.icon}</span>

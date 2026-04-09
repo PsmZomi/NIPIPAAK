@@ -126,10 +126,22 @@ const navItems = [
   { label: "Contact", to: "/contact" },
 ];
 
+const mobileMenuItems = [
+  { label: "Home", to: "/" },
+  { label: "Gallery", to: "/gallery" },
+  { label: "Contact", to: "/contact" },
+];
+
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
+
+  const paperDate = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date());
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -137,36 +149,40 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const close = () => setMenuOpen(false);
-
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled
-        ? "bg-green-300 shadow-sm border-b border-zinc-200"
-        : "bg-white/80 backdrop-blur-md border-b border-zinc-100"
+        ? "bg-paper shadow-sm border-b border-zinc-200"
+        : "bg-paper backdrop-blur-md border-b border-zinc-100"
         }`}
     >
-      <div className="max-w-6xl mx-auto px-5 py-3">
+      <div className="max-w-6xl mx-auto px-5 py-2">
         {/* LINE 1: LOGO + NAME (Centered) */}
         <div className="flex items-center justify-center relative py-2">
-          <Link
-            to="/"
-            onClick={close}
-            className="flex items-center group"
-          >
-            <img
-              src="https://res.cloudinary.com/dpgqehxeh/image/upload/e_background_removal/f_png/v1772016903/clmwampvntxosiidecar.png"
-              alt="NIPIPAAK Logo"
-              className="w-12 h-12 object-contain"
-            />
+          <div className="flex flex-col items-center">
+            <p className="font-mono text-[10px] sm:text-[11px] tracking-wide text-muted mb-1.5 text-center">
+              {paperDate}
+            </p>
+            <Link
+              to="/"
+              className="flex flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-1 group"
+            >
+              <img
+                src="https://res.cloudinary.com/dpgqehxeh/image/upload/e_background_removal/f_png/v1772016903/clmwampvntxosiidecar.png"
+                alt="NIPIPAAK Salbuu"
+                className="w-12 h-12 object-contain shrink-0"
+              />
 
-            <span className="text-4xl md:text-5xl font-display mr-4 text-ink text-widest tracking-tight group-hover:text-accent transition-colors">
-              NIPIPAAK
-            </span>
-          </Link>
+              <span className="font-display text-3xl sm:text-5xl lg:text-6xl leading-none tracking-tight text-ink group-hover:text-green-300">
+                NIPIPAAK
+              </span>
+            </Link>
+          </div>
 
-          {/* Admin Login/Logout Button (Top Right) */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block">
+          {/* Hamburger (Mobile Only) - REMOVED */}
+
+          {/* Admin Login/Logout Button (Top Right - Desktop) */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block lg:hidden">
             {user ? (
               <button
                 onClick={() => auth.signOut()}

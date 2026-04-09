@@ -33,7 +33,7 @@ export default function NewsPage() {
   const allPosts = [...dbNews, ...staticPosts]
 
   return (
-    <main className="pt-[130px] lg:pt-[85px] bg-white min-h-screen">
+    <main className="pt-[146px] lg:pt-[101px] bg-white min-h-screen">
 
       {/* Hero */}
       <div className="border-b border-zinc-200 py-16">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { fill } from '@cloudinary/url-gen/actions/resize';
@@ -10,13 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   collection, 
   addDoc, 
-  serverTimestamp, 
-  query, 
-  orderBy, 
-  limit, 
-  getDocs, 
-  deleteDoc, 
-  doc 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -52,7 +47,48 @@ export default function Gallery() {
     }
   }, []);
 
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+  const isLarge = windowWidth >= 1024;
+
+  // On large screen, remove /gallery from actual routing and redirect to /photo.
+  useEffect(() => {
+    if (isLarge && pathname === '/gallery') {
+      navigate('/photo', { replace: true });
+    }
+  }, [isLarge, pathname, navigate]);
+
   const currentFolder = folders.find(f => f.id === currentFolderId);
+
+  const navLinks = [
+    { path: '/blog', label: 'Blog' },
+    { path: '/news', label: 'News' },
+    { path: '/songs', label: 'Songs' },
+    { path: '/gallery', label: 'Gallery' },
+    { path: '/photo', label: 'Photo' },
+  ];
+
+  const navLinksToShow = isLarge
+    ? navLinks.filter(link => link.path !== '/gallery')
+    : navLinks;
+
+  const prefetchRoute = (path) => {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = path;
+    link.as = 'document';
+    document.head.appendChild(link);
+  };
 
   // 2. Fetch Gallery Images from Cloudinary
   const fetchImages = async (folderName) => {
@@ -83,55 +119,7 @@ export default function Gallery() {
     if (currentFolder?.name) fetchImages(currentFolder.name);
   }, [currentFolder?.name]);
 
-  // 3. --- HERO BANNER LOGIC (Upload & Delete) ---
-  const openBannerUploadWidget = () => {
-    if (!window.cloudinary) return alert('Cloudinary widget not loaded');
-    window.cloudinary.openUploadWidget(
-      {
-        cloudName: CLOUD_NAME,
-        uploadPreset: UPLOAD_PRESET,
-        folder: 'banners',
-        resourceType: 'image',
-        multiple: false,
-        cropping: true,
-        croppingAspectRatio: 3, 
-      },
-      async (err, result) => {
-        if (!err && result.event === 'success') {
-          const targetLink = prompt("Load zota");
-          try {
-            await addDoc(collection(db, 'banners'), {
-              image: result.info.secure_url,
-              link: targetLink || '',
-              createdAt: serverTimestamp(),
-            });
-            alert('Hero Banner Added!');
-          } catch (e) {
-            console.error("Error saving to Firestore:", e);
-          }
-        }
-      }
-    );
-  };
-
-  const deleteLatestBanner = async () => {
-    if (!window.confirm("Are you sure you want to delete the most recent banner?")) return;
-    try {
-      const q = query(collection(db, 'banners'), orderBy('createdAt', 'desc'), limit(1));
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const bannerId = querySnapshot.docs[0].id;
-        await deleteDoc(doc(db, 'banners', bannerId));
-        alert("Latest banner removed from archive.");
-      } else {
-        alert("No banners found to delete.");
-      }
-    } catch (e) {
-      console.error("Error deleting banner:", e);
-    }
-  };
-
-  // 4. Gallery Upload Widget
+  // 3. Gallery Upload Widget
   const openUploadWidget = () => {
     window.cloudinary.openUploadWidget(
       {
@@ -165,33 +153,28 @@ export default function Gallery() {
   };
 
   return (
-    <main className="min-h-screen bg-[#fafafa] pt-32 pb-24 lg:pb-12">
+    <main className="min-h-screen bg-[#fafafa] pt-36 pb-24 lg:pb-12">
       <div className="max-w-7xl mx-auto px-5 relative">
-        
-        {/* --- ADMIN CONTROLS (Top Right) --- */}
-        {/* NOTE: If you can't see these, it means 'user' is null. Log in first! */}
-        {user && (
-          <div className="absolute -top-10 right-5 z-50 flex flex-col items-end gap-2">
-            <button 
-              onClick={openBannerUploadWidget}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white text-[10px] font-bold uppercase tracking-widest px-6 py-2 rounded-full shadow-xl transition-all"
-            >
-              + Add Hero Banner
-            </button>
-            <button 
-              onClick={deleteLatestBanner}
-              className="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-md transition-all"
-            >
-              ✕ Delete Latest Banner
-            </button>
-          </div>
-        )}
 
         {/* Header */}
-        <header className="text-center mb-12">
+        <header className="text-center mb-8">
           <h1 className="text-5xl font-display mt-4 text-ink mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
             The Nipipaak Archive
           </h1>
+          <div className="sticky top-24 z-20 bg-white/95 backdrop-blur-md rounded-xl border border-zinc-200 p-3 shadow-sm mb-4">
+            <div className="flex flex-wrap justify-center gap-2 text-xs">
+              {navLinksToShow.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onMouseEnter={() => prefetchRoute(link.path)}
+                  className="px-3 py-2 rounded-full bg-zinc-100 text-zinc-700 hover:bg-zinc-200 transition-all"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
           <p className="text-zinc-400 uppercase tracking-[0.4em] text-[10px] pt-4 font-bold">
             Melmuh Tongsaan ni mo
           </p>
@@ -226,7 +209,7 @@ export default function Gallery() {
               />
               <button onClick={addFolder} className="text-green-600 font-bold px-2 text-lg">+</button>
             </div>
-          )}
+          )} 
         </div>
 
         {/* Gallery Upload Section */}
@@ -251,9 +234,9 @@ export default function Gallery() {
               </button>
             </div>
           </div>
-        )}
+        )} 
 
-        {/* Image Grid */}
+        {/* Image Gallery Grid */}
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
             {[1, 2, 3, 4].map((n) => <div key={n} className="aspect-square bg-zinc-200 rounded-lg" />)}

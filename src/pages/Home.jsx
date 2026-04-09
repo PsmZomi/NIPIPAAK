@@ -1,329 +1,371 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useReveal } from '../components/useReveal'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
-import { useAuth } from '../context/AuthContext'
+
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+
+const PLACEHOLDER_IMG =
+  'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&q=80'
+
+function createdMs(item) {
+  const t = item.createdAt
+  if (t?.seconds != null) return t.seconds * 1000
+  if (t?._seconds != null) return t._seconds * 1000
+  return 0
+}
+
+function mergeNewest(news, blogs, limit) {
+  const tagged = [
+    ...news.map((n) => ({ ...n, _src: 'news' })),
+    ...blogs.map((b) => ({ ...b, _src: 'blog' })),
+  ]
+  return tagged.sort((a, b) => createdMs(b) - createdMs(a)).slice(0, limit)
+}
+
+function byLikes(news, blogs, limit) {
+  const tagged = [
+    ...blogs.map((b) => ({ ...b, _src: 'blog' })),
+    ...news.map((n) => ({ ...n, _src: 'news' })),
+  ]
+  return tagged
+    .filter((x) => x.slug)
+    .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+    .slice(0, limit)
+}
 
 export default function Home() {
   const [latestNews, setLatestNews] = useState([])
   const [latestBlogs, setLatestBlogs] = useState([])
   const [latestSongs, setLatestSongs] = useState([])
-  const [showAllBlogs, setShowAllBlogs] = useState(false)
-  const { user } = useAuth()
-  
+  const [galleryPreview, setGalleryPreview] = useState([])
+
   useReveal()
 
-  useEffect(() => { window.scrollTo(0, 0) }, [])
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
-    const qNews = query(collection(db, 'news'), orderBy('createdAt', 'desc'));
-    const qBlogs = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'));
-    const qSongs = query(collection(db, 'songs'), orderBy('createdAt', 'desc'));
+    const qNews = query(collection(db, 'news'), orderBy('createdAt', 'desc'))
+    const qBlogs = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'))
+    const qSongs = query(collection(db, 'songs'), orderBy('createdAt', 'desc'))
 
-    const unsubNews = onSnapshot(qNews, (snapshot) => {
-      setLatestNews(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.warn(err));
+    const unsubNews = onSnapshot(
+      qNews,
+      (snapshot) => {
+        setLatestNews(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+      },
+      (err) => console.warn(err)
+    )
 
-    const unsubBlogs = onSnapshot(qBlogs, (snapshot) => {
-      setLatestBlogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.warn(err));
+    const unsubBlogs = onSnapshot(
+      qBlogs,
+      (snapshot) => {
+        setLatestBlogs(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+      },
+      (err) => console.warn(err)
+    )
 
-    const unsubSongs = onSnapshot(qSongs, (snapshot) => {
-      setLatestSongs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.warn(err));
+    const unsubSongs = onSnapshot(
+      qSongs,
+      (snapshot) => {
+        setLatestSongs(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+      },
+      (err) => console.warn(err)
+    )
 
-    return () => { unsubNews(); unsubBlogs(); unsubSongs(); };
-  }, []);
+    return () => {
+      unsubNews()
+      unsubBlogs()
+      unsubSongs()
+    }
+  }, [])
 
-  // Derived Data
-  const featuredPosts = latestBlogs.slice(0, 6);
-  const displayedBlogs = showAllBlogs ? latestBlogs : latestBlogs.slice(0, 6);
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const raw = localStorage.getItem('galleryFolders')
+        if (!raw || !CLOUD_NAME) {
+          if (!cancelled) setGalleryPreview([])
+          return
+        }
+        const folders = JSON.parse(raw)
+        const folderName = folders[0]?.name
+        if (!folderName) {
+          if (!cancelled) setGalleryPreview([])
+          return
+        }
+        const res = await fetch(
+          `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folderName}.json`
+        )
+        if (!res.ok || cancelled) return
+        const data = await res.json()
+        const thumbs = (data.resources || []).slice(0, 8).map((r) => ({
+          id: r.public_id,
+          url: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_480,h_360,c_fill,g_auto,f_auto,q_auto/${r.public_id}`,
+          caption: r.context?.custom?.caption || '',
+        }))
+        if (!cancelled) setGalleryPreview(thumbs)
+      } catch {
+        if (!cancelled) setGalleryPreview([])
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const topStories = useMemo(
+    () => mergeNewest(latestNews, latestBlogs, 4),
+    [latestNews, latestBlogs]
+  )
+
+  const popularStories = useMemo(
+    () => byLikes(latestNews, latestBlogs, 8),
+    [latestNews, latestBlogs]
+  )
+
+  const songsSorted = useMemo(() => {
+    return [...latestSongs].sort((a, b) => (b.likes || 0) - (a.likes || 0))
+  }, [latestSongs])
+
+  const StoryLink = ({ item, children, className = '' }) => {
+    if (!item?.slug) {
+      return <div className={className}>{children}</div>
+    }
+    const to = item._src === 'blog' ? `/blog/${item.slug}` : `/news/${item.slug}`
+    return (
+      <Link to={to} className={className}>
+        {children}
+      </Link>
+    )
+  }
 
   return (
-    <main className="pt-[105px] lg:pt-[89px] bg-[#fdfaf6] text-[#1a1a1a] min-h-screen selection:bg-[#eaddca]">
-      
-      {/* ── LIBRARY HEADER ── */}
-      <header className="max-w-7xl mx-auto mb-12 px-5 lg:px-10">
-        <div className="flex flex-col items-center text-center">
-          <div className="h-px w-24 bg-zinc-300 mb-6 lg:mb-10" />
-          <p className="font-serif italic text-4xl lg:text-5xl text-zinc-800">Nipipaak Salbuu</p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-zinc-400 mt-4">
-            Huihlak laibu
+    <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] pb-8 lg:pb-24 min-h-screen bg-paper text-ink selection:bg-border">
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 lg:pb-24">
+        {/* Masthead — snug under fixed header on mobile */}
+        <header className="pt-2 pb-2 lg:pt-10 text-center">
+          <p className="font-gothic text-sm sm:text-base italic text-muted">
+            HuihlaK Salbu — thuthak &amp; laathaK
           </p>
-        </div>
-      </header>
+        </header>
 
-      {/* ── WHAT'S NEW ── */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-10 mb-24">
-        <div className="mb-8">
-          <h2 className="font-serif text-2xl italic text-zinc-800">What's New</h2>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">Latest songs & news</p>
-        </div>
+        {/* Top row — newest */}
+        <section className="mt-2 mb-10" aria-labelledby="headlines-heading">
+          <div className="flex items-end justify-between border-b-4 border-double border-ink mb-2 pb-2">
+            <h2 id="headlines-heading" className="font-display text-xl sm:text-2xl font-bold">
+              Thu Masa
+            </h2>
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">
+              Thu &amp; La tuamtuam
+            </span>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...latestSongs.slice(0, 2), ...latestNews.slice(0, 2)].map((item, index) => (
-            <Link 
-              key={`${item.id}-${index}`} 
-              to={item.artist ? `/songs/${item.slug}` : `/news/${item.slug}`}
-              className="reveal group"
-            >
-              <article className="bg-white border border-zinc-200 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
-                <div className={`overflow-hidden flex items-center justify-center p-4 aspect-square ${
-                  item.artist 
-                    ? 'bg-gradient-to-br from-green-600 to-black' 
-                    : 'bg-zinc-100'
-                }`}>
-                  {item.artist ? (
-                    <div className="text-center">
-                      <span className="text-4xl block mb-2">🎵</span>
-                      <p className="text-xs font-mono text-green-200 line-clamp-1">
-                        {item.artist}
-                      </p>
-                    </div>
-                  ) : (
-                    <img 
-                      src={item.image || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400'} 
-                      alt={item.title}
-                      className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-mono text-[9px] text-zinc-400">{item.date}</p>
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${
-                      item.artist
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {item.artist ? '🎵 Song' : '📰 News'}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-sm italic text-zinc-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+          <div className="grid grid-cols-1 lg:grid-cols-4 lg:divide-x lg:divide-ink/15 border border-ink/20 bg-white shadow-[inset_0_0_0_1px_rgba(17,16,16,0.06)]">
+            {topStories.length === 0 ? (
+              <div className="lg:col-span-4 p-8 text-center font-mono text-xs text-muted">
+                No stories yet. Add news or a blog post from Create Post.
+              </div>
+            ) : (
+              topStories.map((item, i) => (
+                <StoryLink
+                  key={`top-${item._src}-${item.id}`}
+                  item={item}
+                  className="reveal group block p-4 sm:p-5 border-b border-ink/10 last:border-b-0 lg:border-b-0 hover:bg-warm/40 transition-colors"
+                >
+                  <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-accent mb-2">
+                    {item._src === 'blog' ? 'Article' : 'News'} · {item.date || '—'}
+                  </p>
+                  <h3
+                    className={`font-display font-bold text-ink leading-tight mb-2 group-hover:text-accent2 transition-colors ${
+                      i === 0 ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'
+                    }`}
+                  >
                     {item.title}
                   </h3>
-                  <p className="text-xs text-zinc-600 mb-3 flex-1 line-clamp-2">
-                    {item.artist || item.excerpt}
+                  <p className="text-xs sm:text-sm text-muted leading-relaxed line-clamp-3 font-sans">
+                    {item.excerpt || item.summary || 'Read more on the inside pages.'}
                   </p>
-                  
-                  <div className="flex items-center gap-3 text-[9px] text-zinc-500 font-mono pt-2 border-t border-zinc-100">
-                    <span>{(item.likes || 0) > 0 ? '❤️' : '🤍'} {item.likes || 0}</span>
-                    <span>💬 {item.comments?.length || 0}</span>
-                  </div>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── NEWS UPDATES ── */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-10 mb-24">
-        <div className="mb-10 pb-4 border-b border-zinc-200">
-          <h2 className="font-serif text-2xl italic text-zinc-800">Recent News</h2>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 mt-2">Thu thak</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {latestNews.slice(0, 4).map((news, index) => (
-            <Link key={news.id} to={`/news/${news.slug}`} className="reveal group">
-              <article className="bg-white border border-zinc-200 p-4 hover:shadow-md transition-all flex gap-4">
-                {news.image && (
-                  <div className="w-24 h-24 flex-shrink-0 overflow-hidden bg-zinc-100">
-                    <img src={news.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                  </div>
-                )}
-                <div>
-                  <span className="font-mono text-[9px] text-zinc-400 uppercase">{news.date}</span>
-                  <h3 className="font-serif text-lg italic text-zinc-800 line-clamp-2">{news.title}</h3>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── ARTICLES & BLOGS ── */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-10 mb-24">
-        <div className="mb-10 pb-4 border-b border-zinc-200">
-          <div>
-            <h2 className="font-serif text-2xl italic text-zinc-800">Articles & Blogs</h2>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 mt-2">Thu leh Laa</p>
+                  {item.image && (
+                    <div className="mt-3 aspect-[16/9] overflow-hidden border border-ink/10">
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 transition-all duration-500"
+                      />
+                    </div>
+                  )}
+                </StoryLink>
+              ))
+            )}
           </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayedBlogs.map((blog, i) => (
-            <Link 
-              key={blog.id} 
-              to={`/blog/${blog.slug}`}
-              className="reveal group"
-            >
-              <article className="bg-white border border-zinc-200 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
-                <div className="overflow-hidden bg-zinc-100 aspect-square relative">
-                  <img 
-                    src={blog.image || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400'} 
-                    alt={blog.title}
-                    className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-mono text-[9px] text-zinc-400">{blog.date}</p>
-                    <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                      📝 Article
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-lg italic text-zinc-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {blog.title}
+        {/* Popular — 2 cols mobile, 4 lg */}
+        <section className="mb-10" aria-labelledby="popular-heading">
+          <div className="border-t-2 border-ink pt-6 mb-5">
+            <h2 id="popular-heading" className="font-display text-xl sm:text-2xl font-bold">
+              Na Sim in
+            </h2>
+            <p className="font-mono text-[9px] uppercase tracking-widest text-muted mt-1">
+              LAigelh tuamtuam
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {popularStories.length === 0 ? (
+              <div className="col-span-full py-10 text-center font-mono text-xs text-muted border border-dashed border-ink/20">
+                Likes will rank stories here once readers engage.
+              </div>
+            ) : (
+              popularStories.map((item, rank) => (
+                <StoryLink
+                  key={`pop-${item._src}-${item.id}`}
+                  item={item}
+                  className="reveal group block border border-ink/15 bg-white p-3 sm:p-4 hover:border-ink/40 hover:shadow-md transition-all"
+                >
+                  <span className="font-gothic text-3xl sm:text-4xl leading-none text-ink/25 group-hover:text-accent/40">
+                    {rank + 1}
+                  </span>
+                  <p className="font-mono text-[8px] uppercase tracking-widest text-muted mt-2 mb-1">
+                    {item._src === 'blog' ? 'Article' : 'News'}
+                  </p>
+                  <h3 className="font-display font-semibold text-sm sm:text-base leading-snug line-clamp-3 group-hover:text-accent2">
+                    {item.title}
                   </h3>
-                  <p className="text-sm text-zinc-600 mb-4 flex-1 line-clamp-2">
-                    {blog.excerpt}
-                  </p>
-                  
-                  {/* Engagement Stats */}
-                  <div className="flex items-center gap-4 text-[9px] text-zinc-500 font-mono pt-3 border-t border-zinc-100">
-                    <span>{(blog.likes || 0) > 0 ? '❤️' : '🤍'} {blog.likes || 0}</span>
-                    <span>💬 {blog.comments?.length || 0}</span>
+                  <div className="mt-2 flex items-center gap-2 text-[9px] font-mono text-muted">
+                    <span>♥ {item.likes ?? 0}</span>
                   </div>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ── SONGS ── */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-10 mb-24">
-        <div className="mb-10 pb-4 border-b border-zinc-200">
-          <div>
-            <h2 className="font-serif text-2xl italic text-zinc-800">Songs</h2>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 mt-2">Popular by engagement</p>
+                  <div className="mt-3 aspect-square bg-border overflow-hidden border border-ink/10">
+                    <img
+                      src={item.image || PLACEHOLDER_IMG}
+                      alt=""
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                    />
+                  </div>
+                </StoryLink>
+              ))
+            )}
           </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {latestSongs.slice(0, 6).sort((a, b) => (b.likes || 0) - (a.likes || 0)).map((song, i) => (
-            <Link 
-              key={song.id} 
-              to={`/songs/${song.slug}`}
-              className="reveal group"
+        {/* Songs */}
+        <section className="mb-10" aria-labelledby="songs-heading">
+          <div className="border-t border-ink/30 pt-6 mb-5 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 id="songs-heading" className="font-display text-xl uppercase sm:text-2xl font-bold">
+                laa buu
+              </h2>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-muted mt-1">
+                
+              </p>
+            </div>
+            <Link
+              to="/songs"
+              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent2 underline-offset-4 hover:underline"
             >
-              <article className="bg-white border border-zinc-200 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
-                <div className="overflow-hidden flex items-center justify-center p-6 aspect-square bg-gradient-to-br from-green-600 to-black">
-                  <div className="text-center">
-                    <span className="text-6xl block mb-3">🎵</span>
-                    <p className="text-xs font-mono text-purple-200 line-clamp-1">
-                      {song.artist}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-mono text-[9px] text-zinc-400">{song.date}</p>
-                    <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
-                      🎵 Song
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-lg italic text-zinc-800 mb-2 group-hover:text-green-600 transition-colors line-clamp-2">
+              All songs →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {latestSongs.length === 0 ? (
+              <div className="col-span-full py-10 text-center font-mono text-xs text-muted border border-dashed border-ink/20">
+                No songs yet.
+              </div>
+            ) : (
+              songsSorted.slice(0, 8).map((song) => (
+                <Link
+                  key={song.id}
+                  to={song.slug ? `/songs/${song.slug}` : '/songs'}
+                  className="reveal group border border-ink/15 bg-white p-3 sm:p-4 flex flex-col hover:bg-warm/50 transition-colors"
+                >
+                  <span className="font-mono text-[8px] uppercase text-muted mb-1">{song.date}</span>
+                  <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2 flex-1 group-hover:text-accent2">
                     {song.title}
                   </h3>
-                  <p className="text-sm text-zinc-600 mb-4 flex-1 line-clamp-2">
-                    {song.artist}
+                  <p className="text-xs text-muted mt-1 line-clamp-1 font-sans">{song.artist}</p>
+                  <p className="mt-2 text-[9px] font-mono text-muted border-t border-border pt-2">
+                    ♥ {song.likes ?? 0}
                   </p>
-                  
-                  {/* Engagement Stats */}
-                  <div className="flex items-center gap-4 text-[9px] text-zinc-500 font-mono pt-3 border-t border-zinc-100">
-                    <span>{(song.likes || 0) > 0 ? '❤️' : '🤍'} {song.likes || 0}</span>
-                    <span>💬 {song.comments?.length || 0}</span>
-                  </div>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
-      </section>
+                </Link>
+              ))
+            )}
+          </div>
+        </section>
 
-      {/* ── TOP LIKES ── */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-10 mb-24">
-        <div className="mb-10 pb-4 border-b border-zinc-200">
-          <h2 className="font-serif text-2xl italic text-zinc-800">Top Likes</h2>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-400 mt-2">Most loved content</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[...displayedBlogs, ...latestSongs.slice(0, 6)]
-            .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-            .slice(0, 6)
-            .map((item, i) => (
-            <Link 
-              key={`top-${item.type || 'blog'}-${item.id}`} 
-              to={item.type === 'song' ? `/songs/${item.slug}` : `/blog/${item.slug}`}
-              className="reveal group"
+        {/* Gallery */}
+        <section className="mb-10" aria-labelledby="gallery-heading">
+          <div className="border-t-2 border-ink pt-6 mb-5 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 id="gallery-heading" className="font-display text-xl sm:text-2xl uppercase font-bold">
+                LIm lui
+              </h2>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-muted mt-1">
+                From TCSA archive
+              </p>
+            </div>
+            <Link
+              to="/gallery"
+              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent2 underline-offset-4 hover:underline"
             >
-              <article className="bg-white border border-zinc-200 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
-                <div className={`overflow-hidden flex items-center justify-center p-6 aspect-square ${
-                  item.type === 'song' 
-                    ? 'bg-gradient-to-br from-green-600 to-black' 
-                    : 'bg-zinc-100'
-                }`}>
-                  {item.type === 'song' ? (
-                    <div className="text-center">
-                      <span className="text-6xl block mb-3">🎵</span>
-                      <p className="text-xs font-mono text-green-200 line-clamp-1">
-                        {item.artist}
-                      </p>
-                    </div>
-                  ) : (
-                    <img 
-                      src={item.image || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400'} 
-                      alt={item.title}
-                      className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-mono text-[9px] text-zinc-400">{item.date}</p>
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${
-                      item.type === 'song'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {item.type === 'song' ? '🎵 Song' : '📝 Article'}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-lg italic text-zinc-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-zinc-600 mb-4 flex-1 line-clamp-2">
-                    {item.type === 'song' ? item.artist : item.excerpt}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 text-[9px] text-zinc-500 font-mono pt-3 border-t border-zinc-100">
-                    <span>{(item.likes || 0) > 0 ? '❤️' : '🤍'} {item.likes || 0}</span>
-                    <span>💬 {item.comments?.length || 0}</span>
-                  </div>
-                </div>
-              </article>
+              Full gallery →
             </Link>
-          ))}
-        </div>
-      </section>
+          </div>
 
-      {/* ── FOOTER STUDY SECTION ── */}
-      <section className="bg-zinc-900 text-[#f4f1ea] py-24 text-center">
-        <div className="max-w-2xl mx-auto px-5">
-          <h2 className="text-4xl font-serif italic mb-6">Quietude & Contemplation</h2>
-          <p className="font-serif opacity-60 italic mb-10 leading-relaxed">
-            "A collection of thoughts, bound by digital ink, curated for those who still find magic in the turning of a page."
+          {galleryPreview.length === 0 ? (
+            <div className="border border-dashed border-ink/20 bg-white/50 py-12 text-center font-mono text-xs text-muted">
+              Open Gallery to add albums; previews appear here from your first Cloudinary folder.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+              {galleryPreview.map((img) => (
+                <Link
+                  key={img.id}
+                  to="/gallery"
+                  className="reveal group relative aspect-[4/3] overflow-hidden border border-ink/15 bg-border"
+                >
+                  <img
+                    src={img.url}
+                    alt={img.caption || ''}
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                  />
+                  {img.caption && (
+                    <span className="absolute bottom-0 left-0 right-0 bg-ink/75 text-paper text-[8px] font-mono uppercase tracking-wider px-2 py-1 line-clamp-1">
+                      {img.caption}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Footnote */}
+        <aside
+          className="reveal border-t-4 border-double border-ink pt-6 mt-4"
+          aria-label="Editor’s footnote"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted mb-3">
+            Editor&apos;s note
           </p>
-          <Link to="/about" className="inline-block border border-white/20 px-10 py-4 font-mono text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-500">
-            The Librarian's Mandate
-          </Link>
-        </div>
-      </section>
+          <p className="font-display text-base sm:text-lg italic leading-relaxed text-ink max-w-3xl">
+            This edition gathers fresh reporting, long reads, verse set to music, and images from
+            the field. For corrections or tips, we welcome a line via{' '}
+            <Link to="/contact" className="text-accent underline-offset-2 hover:underline not-italic">
+              Contact
+            </Link>
+            .
+          </p>
+          <p className="mt-4 font-mono text-[9px] text-muted">
+            * Salbuu is published in the spirit of the reading room — take your time with each page.
+          </p>
+        </aside>
+      </div>
     </main>
   )
 }
