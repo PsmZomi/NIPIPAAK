@@ -42,7 +42,7 @@ export default function Login() {
         <main className="min-h-screen pt-[130px] lg:pt-[115px] bg-gray-50 flex items-center justify-center">
             <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100">
                 <h1 className="text-3xl font-bold mb-6 text-center" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    {isLogin ? 'Admin Login' : 'Admin Signup'}
+                    {isLogin ? 'Login' : 'Signup'}
                 </h1>
                 {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">{error}</div>}
 

@@ -34,8 +34,12 @@ export default function CreateSong() {
 
         try {
             const slug = generateSlug(title);
-            // Split lyrics by double newline to match the existing structure
-            const lyricsArray = lyrics.split('\n\n').filter(p => p.trim() !== '');
+            const lyricsArray = lyrics.split(/\r?\n/);
+            if (!lyricsArray.some((l) => l.trim().length > 0)) {
+                setError('Please add lyrics.');
+                setLoading(false);
+                return;
+            }
 
             const songData = {
                 title,

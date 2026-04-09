@@ -33,3 +33,108 @@
 .animate-marquee:hover {
     animation-play-state: paused;
 }
+
+/* Create Post — ReactQuill (snow) */
+.rich-editor .ql-toolbar.ql-snow {
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafafa;
+}
+
+.rich-editor .ql-container.ql-snow {
+    border: none;
+    font-size: 1rem;
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.rich-editor .ql-editor {
+    min-height: 280px;
+}
+
+.rich-editor .ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: normal;
+}
+
+/* Article view — sanitized Quill HTML */
+.prose-article .quill-body {
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: #1a1a1a;
+}
+
+.prose-article .quill-body > * + * {
+    margin-top: 1rem;
+}
+
+.prose-article .quill-body p {
+    margin-top: 0;
+}
+
+.prose-article .quill-body h1 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+}
+
+.prose-article .quill-body h2 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.prose-article .quill-body h3 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.prose-article .quill-body ul,
+.prose-article .quill-body ol {
+    padding-left: 1.5rem;
+}
+
+.prose-article .quill-body blockquote {
+    border-left: 4px solid #c0392b;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #4b5563;
+    font-style: italic;
+}
+
+.prose-article .quill-body pre.ql-syntax {
+    background: #111;
+    color: #f4f4f5;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+}
+
+.prose-article .quill-body a {
+    color: #c0392b;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.prose-article .quill-body a:hover {
+    color: #96281b;
+}
+
+/* Legacy plain paragraphs */
+.prose-article .drop-cap::first-letter {
+    float: left;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 3.5rem;
+    line-height: 0.85;
+    padding-right: 0.5rem;
+    font-weight: 700;
+    color: #111;
+}

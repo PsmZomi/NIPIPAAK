@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, useParams, Link, Navigate } from 'react-router-dom'
+import { useSearchParams, useParams, Link, Navigate, useNavigate } from 'react-router-dom'
 import { useReveal } from '../components/useReveal'
 import ShareButton from '../components/ShareButton'
 import { collection, query, orderBy, onSnapshot, where, getDocs, addDoc, updateDoc, increment, doc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 
+const LOGIN_TO_CONTRIBUTE_MSG = 'Please log in to contribute.'
+
 export default function Song() {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [dbSongs, setDbSongs] = useState([])
@@ -198,9 +201,11 @@ export default function Song() {
         {/* Song Lyrics/Content */}
         <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">
           <div className="prose-article">
-            {(song.lyrics || []).map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
+            <p className="whitespace-pre-line leading-relaxed text-lg text-ink">
+              {Array.isArray(song.lyrics)
+                ? song.lyrics.join('\n')
+                : String(song.lyrics ?? '')}
+            </p>
           </div>
 
           {/* Share button positioned at bottom right after song content */}
@@ -319,13 +324,24 @@ export default function Song() {
             >
               All Songs
             </h1>
-            {user && (
+            {user ? (
               <Link
                 to="/create-song"
                 className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
               >
-                + Create New Song
+                + Laa Thak
               </Link>
+            ) : (
+              <button
+                type="button"
+                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  window.alert(LOGIN_TO_CONTRIBUTE_MSG)
+                  navigate('/login')
+                }}
+              >
+                + Laa Thak
+              </button>
             )}
           </div>
           <p className="text-lg text-white/70 max-w-3xl">

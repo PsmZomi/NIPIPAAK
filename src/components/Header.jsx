@@ -181,7 +181,7 @@ export default function Header() {
 
           {/* Hamburger (Mobile Only) - REMOVED */}
 
-          {/* Admin Login/Logout Button (Top Right - Desktop) */}
+          {/*  Login/Logout Button (Top Right - Desktop) */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:block lg:hidden">
             {user ? (
               <button

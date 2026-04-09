@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, useParams, Link, Navigate } from 'react-router-dom'
+import { useSearchParams, useParams, Link, Navigate, useNavigate } from 'react-router-dom'
 import { categories } from '../data/content'
 import { useReveal } from '../components/useReveal'
 import PostCard from '../components/PostCard'
@@ -7,9 +7,13 @@ import ShareButton from '../components/ShareButton'
 import { collection, query, orderBy, onSnapshot, where, getDocs, addDoc, updateDoc, increment, doc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
+import { sanitizeArticleHtml } from '../utils/sanitizeHtml'
+
+const LOGIN_TO_CONTRIBUTE_MSG = 'Please log in to contribute.'
 
 export default function Blog() {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [dbPosts, setDbPosts] = useState([])
@@ -233,9 +237,22 @@ export default function Blog() {
         {/* Article body */}
         <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">
           <div className="prose-article">
-            {(post.body || []).map((para, i) => (
-              <p key={i} className={i === 0 ? 'drop-cap' : ''}>{para}</p>
-            ))}
+            {post.bodyHtml ? (
+              <div
+                className="quill-body"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeArticleHtml(post.bodyHtml),
+                }}
+              />
+            ) : (post.body || []).length > 0 ? (
+              (post.body || []).map((para, i) => (
+                <p key={i} className={i === 0 ? 'drop-cap' : ''}>
+                  {para}
+                </p>
+              ))
+            ) : (
+              <p className="text-gray-500 italic">No content.</p>
+            )}
           </div>
 
           {/* Share button positioned at bottom right after article content */}
@@ -357,13 +374,24 @@ export default function Blog() {
             >
               All Stories
             </h1>
-            {user && (
+            {user ? (
               <Link
                 to="/create-post"
                 className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
               >
-                + Create New Post
+                + thuthak
               </Link>
+            ) : (
+              <button
+                type="button"
+                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  window.alert(LOGIN_TO_CONTRIBUTE_MSG)
+                  navigate('/login')
+                }}
+              >
+                + thuthak
+              </button>
             )}
           </div>
           <p className="text-lg text-white/70 max-w-3xl">
