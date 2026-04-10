@@ -31,11 +31,11 @@ export default function PostCard({ post, index }) {
         </div>
 
         {/* 4. THE ENTRY TITLE */}
-        <h3 className="font-serif text-2xl italic leading-tight mb-4 group-hover:text-zinc-600 transition-colors">
+        <h3 className="font-serif text-2xl italic leading-tight mb-4 group-hover:text-green-300 transition-colors">
           {post.title}
         </h3>
 
-        {/* 5. THE CHECKOUT TABLE (Author & Date) */}
+        {/* 5. THE CHECKOUT TABLE (Lai Gelh & Date) */}
         <div className="mt-8 border-t border-zinc-100 pt-4">
           <table className="w-full font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
             <thead>
@@ -47,7 +47,7 @@ export default function PostCard({ post, index }) {
             <tbody>
               <tr>
                 <td className="pt-1 italic text-zinc-400">{post.date}</td>
-                <td className="pt-1 text-center font-normal text-zinc-700 group-hover:text-black">
+                <td className="pt-1 text-center font-normal text-zinc-700 group-hover:text-green-300">
                   {post.author?.split(' ')[0]} 
                 </td>
               </tr>

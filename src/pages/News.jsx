@@ -52,14 +52,14 @@ export default function NewsPage() {
           {user ? (
             <Link
               to="/create-post"
-              className="inline-flex items-center justify-center bg-black text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-800 transition-colors relative z-10"
+              className="inline-flex items-center justify-center bg-black text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-green-300 transition-colors relative z-10"
             >
               + Thuthak
             </Link>
           ) : (
             <button
               type="button"
-              className="hidden lg:inline-flex items-center justify-center bg-black text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-800 transition-colors cursor-pointer relative z-10"
+              className="hidden lg:inline-flex items-center justify-center bg-black text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-green-300 transition-colors cursor-pointer relative z-10"
               onClick={() => {
                 window.alert(LOGIN_TO_CONTRIBUTE_MSG)
                 navigate('/login')

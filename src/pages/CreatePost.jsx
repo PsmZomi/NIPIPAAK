@@ -116,7 +116,7 @@ export default function CreatePost() {
 
             if (type === 'song') {
                 if (!author) {
-                    setError('Artist name is required for songs');
+                    setError('Lai Gelh is required for songs');
                     setLoading(false);
                     return;
                 }
@@ -286,13 +286,13 @@ export default function CreatePost() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {type === 'song' ? 'Artist Name' : "Lai Gelh"}
+                            Lai Gelh
                         </label>
                         <input
                             type="text"
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
-                            placeholder={type === 'song' ? 'Your artist name' : ''}
+                            placeholder={type === 'song' ? 'Your Lai Gelh name' : 'Your name or pen name'}
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         />

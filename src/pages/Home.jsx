@@ -181,7 +181,7 @@ export default function Home() {
                     {item._src === 'blog' ? 'Article' : 'News'} · {item.date || '—'}
                   </p>
                   <h3
-                    className={`font-display font-bold text-ink leading-tight mb-2 group-hover:text-accent2 transition-colors ${
+                    className={`font-display font-bold text-ink leading-tight mb-2 group-hover:text-green-300 transition-colors ${
                       i === 0 ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'
                     }`}
                   >
@@ -228,13 +228,13 @@ export default function Home() {
                   item={item}
                   className="reveal group block border border-ink/15 bg-white p-3 sm:p-4 hover:border-ink/40 hover:shadow-md transition-all"
                 >
-                  <span className="font-gothic text-3xl sm:text-4xl leading-none text-ink/25 group-hover:text-accent/40">
+                  <span className="font-gothic text-3xl sm:text-4xl leading-none text-ink/25 group-hover:text-green-300/80">
                     {rank + 1}
                   </span>
                   <p className="font-mono text-[8px] uppercase tracking-widest text-muted mt-2 mb-1">
                     {item._src === 'blog' ? 'Article' : 'News'}
                   </p>
-                  <h3 className="font-display font-semibold text-sm sm:text-base leading-snug line-clamp-3 group-hover:text-accent2">
+                  <h3 className="font-display font-semibold text-sm sm:text-base leading-snug line-clamp-3 group-hover:text-green-300">
                     {item.title}
                   </h3>
                   <div className="mt-2 flex items-center gap-2 text-[9px] font-mono text-muted">
@@ -266,7 +266,7 @@ export default function Home() {
             </div>
             <Link
               to="/songs"
-              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent2 underline-offset-4 hover:underline"
+              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-green-300 underline-offset-4 hover:underline transition-colors"
             >
               All songs →
             </Link>
@@ -285,7 +285,7 @@ export default function Home() {
                   className="reveal group border border-ink/15 bg-white p-3 sm:p-4 flex flex-col hover:bg-warm/50 transition-colors"
                 >
                   <span className="font-mono text-[8px] uppercase text-muted mb-1">{song.date}</span>
-                  <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2 flex-1 group-hover:text-accent2">
+                  <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2 flex-1 group-hover:text-green-300">
                     {song.title}
                   </h3>
                   <p className="text-xs text-muted mt-1 line-clamp-1 font-sans">{song.artist}</p>
@@ -311,7 +311,7 @@ export default function Home() {
             </div>
             <Link
               to="/gallery"
-              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-accent2 underline-offset-4 hover:underline"
+              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-green-300 underline-offset-4 hover:underline transition-colors"
             >
               Full gallery →
             </Link>
@@ -356,7 +356,7 @@ export default function Home() {
           <p className="font-display text-base sm:text-lg italic leading-relaxed text-ink max-w-3xl">
             This edition gathers fresh reporting, long reads, verse set to music, and images from
             the field. For corrections or tips, we welcome a line via{' '}
-            <Link to="/contact" className="text-accent underline-offset-2 hover:underline not-italic">
+            <Link to="/contact" className="text-accent underline-offset-2 hover:text-green-300 hover:underline not-italic transition-colors">
               Contact
             </Link>
             .

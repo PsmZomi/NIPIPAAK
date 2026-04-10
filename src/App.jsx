@@ -15,6 +15,10 @@ import Song from './pages/Song'
 import CreateSong from './pages/CreateSong'
 import { AuthProvider } from './context/AuthContext'
 
+function SongsPage() {
+  const { pathname } = useLocation()
+  return <Song key={pathname} />
+}
 
 export default function App() {
   const { pathname } = useLocation()
@@ -35,7 +39,7 @@ export default function App() {
             {pathname === '/' ? (
               <span className="text-zinc-900">Home</span>
             ) : (
-              <Link className="text-indigo-600 hover:text-indigo-700" to="/">Home</Link>
+              <Link className="text-green-300 transition-colors" to="/">Home</Link>
             )}
           </li>
           {pathnames.map((name, index) => {
@@ -48,7 +52,7 @@ export default function App() {
                 {isLast ? (
                   <span className="text-zinc-900 capitalize">{label}</span>
                 ) : (
-                  <Link className="text-indigo-600 hover:text-indigo-700 capitalize" to={routeTo}>
+                  <Link className="text-green-300 capitalize transition-colors" to={routeTo}>
                     {label}
                   </Link>
                 )}
@@ -78,8 +82,8 @@ export default function App() {
             <Route path="/photo" element={<Gallery />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-post" element={<CreatePost />} />
-            <Route path="/songs" element={<Song />} />
-            <Route path="/songs/:slug" element={<Song />} />
+            <Route path="/songs" element={<SongsPage />} />
+            <Route path="/songs/:slug" element={<SongsPage />} />
             <Route path="/create-song" element={<CreateSong />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

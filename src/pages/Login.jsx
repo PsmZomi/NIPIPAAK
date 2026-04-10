@@ -69,7 +69,7 @@ export default function Login() {
                             />
                             <button
                                 type="button"
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-green-300 transition-colors"
                                 onClick={() => setShowPassword(!showPassword)}
                             >
                                 {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
@@ -93,7 +93,7 @@ export default function Login() {
                                 setIsLogin(!isLogin);
                                 setError('');
                             }}
-                            className="text-blue-600 hover:underline font-medium"
+                            className="text-blue-600 hover:text-green-300 hover:underline font-medium transition-colors"
                         >
                             {isLogin ? 'Sign Up' : 'Log In'}
                         </button>

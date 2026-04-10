@@ -31,8 +31,15 @@ export default function Song() {
 
   // Fetch song detail if slug exists
   useEffect(() => {
-    if (!slug) return
-    
+    if (!slug) {
+      setSong(null)
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setSong(null)
+
     const searchFirestore = async () => {
       try {
         const songsQ = query(collection(db, 'songs'), where('slug', '==', slug))
@@ -160,7 +167,7 @@ export default function Song() {
     )
   }
 
-  if (slug && !song) return <Navigate to="/songs" replace />
+  if (slug && !loading && !song) return <Navigate to="/songs" replace />
 
   // Show detail view if slug exists
   if (slug && song) {
@@ -177,10 +184,10 @@ export default function Song() {
                 {song.title}
               </h1>
               
-              {/* Metadata: Artist & Date */}
+              {/* Metadata: Lai Gelh & Date */}
               <div className="flex items-center justify-center gap-10 text-white/80 text-xs font-mono">
                 <div className="flex flex-col gap-1 text-center">
-                  <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Artist</span>
+                  <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Lai Gelh</span>
                   <span className="text-white font-bold tracking-tight text-sm">
                     {song.artist || "Anonymous"}
                   </span>
@@ -203,7 +210,7 @@ export default function Song() {
         <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">
           <div className="prose-article">
             <div className="article-quill-readonly ql-song-lyrics ql-snow">
-              <div className="ql-container ql-snow rounded-lg bg-white border-zinc-200">
+              <div className="ql-container ql-snow rounded-lg bg-white">
                 <div className="ql-editor">
                   {Array.isArray(song.lyrics)
                     ? song.lyrics.join('\n')
@@ -213,23 +220,21 @@ export default function Song() {
             </div>
           </div>
 
-          {/* Share button positioned at bottom right after song content */}
-          <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
-            <ShareButton />
-          </div>
-
-          {/* Writer's Name */}
-          <div className="mt-14 pt-8 border-t border-border">
-            <div className="text-center">
-              <p className="section-label mb-2">Written by</p>
+          {/* Lai Gelh (left) + Share (right) */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mt-8 pt-6 border-t border-gray-200">
+            <div className="text-left min-w-0">
+              <p className="section-label mb-2">Lai Gelh</p>
               <h4 className="font-bold text-xl" style={{ fontFamily: "'Playfair Display', serif" }}>
                 {song.artist || "Anonymous"}
               </h4>
             </div>
+            <div className="flex justify-end sm:justify-end shrink-0 self-end sm:self-auto">
+              <ShareButton />
+            </div>
           </div>
 
           {/* Likes and Comments Section */}
-          <div className="mt-12 pt-8 border-t border-border">
+          <div className="mt-12 pt-8">
             {/* Like Button */}
             <div className="mb-8 pb-8 border-b border-gray-200">
               <button
@@ -267,7 +272,7 @@ export default function Song() {
                 </form>
               ) : (
                 <p className="mb-8 text-gray-600">
-                  <Link to="/login" className="text-green-600 hover:underline">Log in</Link> to comment
+                  <Link to="/login" className="text-green-600 hover:text-green-300 hover:underline transition-colors">Log in</Link> to comment
                 </p>
               )}
 
@@ -332,14 +337,14 @@ export default function Song() {
             {user ? (
               <Link
                 to="/create-song"
-                className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 hover:text-green-300 transition-colors"
               >
                 + Laa Thak
               </Link>
             ) : (
               <button
                 type="button"
-                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 hover:text-green-300 transition-colors"
                 onClick={() => {
                   window.alert(LOGIN_TO_CONTRIBUTE_MSG)
                   navigate('/login')
@@ -382,7 +387,7 @@ export default function Song() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filtered.map((s, i) => (
               <Link key={s.id} to={`/songs/${s.slug}`} className="reveal group">
-                <article className="bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
+                <article className="bg-white border  hover:shadow-lg transition-all duration-500 h-full flex flex-col rounded-lg overflow-hidden">
                   <div className="overflow-hidden bg-gradient-to-br from-green-600 to-black aspect-square flex items-center justify-center p-6">
                     <div className="text-center">
                       <span className="text-6xl block mb-3">🎵</span>
@@ -393,7 +398,7 @@ export default function Song() {
                   </div>
                   <div className="p-6 flex flex-col flex-1">
                     <p className="font-mono text-[10px] text-gray-400 mb-2">{s.date}</p>
-                    <h3 className="font-serif text-xl italic text-gray-800 mb-2 group-hover:text-green-600 transition-colors line-clamp-2">
+                    <h3 className="font-serif text-xl italic text-gray-800 mb-2 group-hover:text-green-300 transition-colors line-clamp-2">
                       {s.title}
                     </h3>
                     <p className="text-sm text-gray-600 mb-4 flex-1">{s.artist}</p>

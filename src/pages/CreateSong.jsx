@@ -104,13 +104,13 @@ export default function CreateSong() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Artist Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Lai Gelh</label>
                         <textarea
                             rows={2}
                             value={artist}
                             ref={artistRef}
                             onChange={(e) => setArtist(e.target.value)}
-                            placeholder="Your name or artist name (Enter for newline)"
+                            placeholder="Your Lai Gelh name (Enter for newline)"
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
                         />

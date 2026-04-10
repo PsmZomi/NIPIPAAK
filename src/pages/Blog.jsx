@@ -207,12 +207,12 @@ export default function Blog() {
                   {post.title}
                 </h1>
 
-                {/* Simplified Metadata: Writer & Date Only */}
+                {/* Simplified Metadata: Lai Gelh & Date Only */}
                 <div className="flex items-center gap-10 text-white/80 text-xs font-mono mt-auto pt-2 border-t border-white/10">
                   
-                  {/* Column 1: The Writer */}
+                  {/* Column 1: Lai Gelh */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Writer</span>
+                    <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Lai Gelh</span>
                     <span className="text-white font-bold tracking-tight text-sm">
                       {post.authorData?.name || post.author || "Anonymous"}
                     </span>
@@ -265,7 +265,7 @@ export default function Blog() {
             <ShareButton />
           </div>
 
-          {/* Author card */}
+          {/* Lai Gelh card */}
           <div className="mt-14 pt-8 border-t border-border flex gap-5 items-start">
             <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black'} rounded-full flex items-center justify-center text-2xl`}>
               👤
@@ -317,7 +317,7 @@ export default function Blog() {
                 </form>
               ) : (
                 <p className="mb-8 text-gray-600">
-                  <Link to="/login" className="text-blue-600 hover:underline">Log in</Link> to comment
+                  <Link to="/login" className="text-blue-600 hover:text-green-300 hover:underline transition-colors">Log in</Link> to comment
                 </p>
               )}
 
@@ -382,14 +382,14 @@ export default function Blog() {
             {user ? (
               <Link
                 to="/create-post"
-                className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                className="bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 hover:text-green-300 transition-colors"
               >
                 + thuthak
               </Link>
             ) : (
               <button
                 type="button"
-                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 transition-colors"
+                className="hidden lg:inline-flex items-center justify-center bg-white text-black font-bold py-3 px-6 rounded-lg uppercase tracking-wider text-sm hover:bg-gray-100 hover:text-green-300 transition-colors"
                 onClick={() => {
                   window.alert(LOGIN_TO_CONTRIBUTE_MSG)
                   navigate('/login')
@@ -447,7 +447,7 @@ export default function Blog() {
                     <div className="p-6 lg:p-8 lg:w-1/2 flex flex-col justify-between">
                       <div>
                         <h2
-                          className="text-3xl lg:text-4xl font-bold leading-tight group-hover:text-blue-600 transition-colors mb-4"
+                          className="text-3xl lg:text-4xl font-bold leading-tight group-hover:text-green-300 transition-colors mb-4"
                           style={{ fontFamily: "'Playfair Display', serif" }}
                         >
                           {filtered[0].title}
@@ -489,7 +489,7 @@ export default function Blog() {
                     </div>
                     <div className="flex-1">
                       <h3
-                        className="text-base font-bold leading-snug group-hover:text-blue-600 transition-colors line-clamp-2"
+                        className="text-base font-bold leading-snug group-hover:text-green-300 transition-colors line-clamp-2"
                         style={{ fontFamily: "'Playfair Display', serif" }}
                       >
                         {p.title}

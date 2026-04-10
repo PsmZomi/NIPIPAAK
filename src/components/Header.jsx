@@ -193,7 +193,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/login"
-                className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-ink border-2 border-green-400 rounded-full p-2 transition-colors"
+                className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-green-300 border-2 border-green-400 rounded-full p-2 transition-colors"
               >
                 Login
               </Link>
@@ -208,7 +208,7 @@ export default function Header() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `text-[12px] font-bold uppercase tracking-[0.25em] transition-colors ${isActive ? "text-accent" : "text-muted hover:text-ink"
+                `text-[12px] font-bold uppercase tracking-[0.25em] transition-colors ${isActive ? "text-accent hover:text-green-300" : "text-muted hover:text-green-300"
                 }`
               }
             >

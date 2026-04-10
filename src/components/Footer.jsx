@@ -30,7 +30,7 @@ export default function Footer() {
             const isWrite = item.to === '/create-post';
             const linkClass = ({ isActive }) => `
                 flex flex-col items-center gap-1 py-2 transition-all duration-200 flex-1
-                ${isActive ? "text-green-600 scale-105" : "text-zinc-400 hover:text-zinc-600"}
+                ${isActive ? "text-green-600 scale-105" : "text-zinc-400 hover:text-green-300"}
               `;
 
             if (isWrite && !user) {
@@ -42,7 +42,7 @@ export default function Footer() {
                     window.alert(LOGIN_TO_CONTRIBUTE_MSG);
                     navigate('/login');
                   }}
-                  className="flex flex-col items-center gap-1 py-2 transition-all duration-200 flex-1 text-zinc-400 hover:text-zinc-600 w-full"
+                  className="flex flex-col items-center gap-1 py-2 transition-all duration-200 flex-1 text-zinc-400 hover:text-green-300 w-full"
                 >
                   <div className="text-xl">{item.icon}</div>
                   <span className="text-[9px] font-bold uppercase tracking-tighter whitespace-nowrap">
@@ -78,7 +78,7 @@ export default function Footer() {
                 to="/login"
                 className={({ isActive }) => `
                   flex flex-col items-center gap-1 py-2 transition-all duration-200 w-full
-                  ${isActive ? "text-blue-600 scale-105" : "text-zinc-400 hover:text-zinc-600"}
+                  ${isActive ? "text-blue-600 scale-105" : "text-zinc-400 hover:text-green-300"}
                 `}
               >
                 <div className="text-xl">🔐</div>
@@ -103,13 +103,13 @@ export default function Footer() {
             <div className="col-span-3 flex justify-end gap-20">
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-bold uppercase text-white/30 tracking-widest">Explore</p>
-                <Link to="/blog" className="text-sm hover:text-green-400 transition-colors">Blog</Link>
-                <Link to="/news" className="text-sm hover:text-green-400 transition-colors">News</Link>
+                <Link to="/blog" className="text-sm hover:text-green-300 transition-colors">Blog</Link>
+                <Link to="/news" className="text-sm hover:text-green-300 transition-colors">News</Link>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-bold uppercase text-white/30 tracking-widest">Company</p>
-                <Link to="/about" className="text-sm hover:text-green-400 transition-colors">About</Link>
-                <Link to="/contact" className="text-sm hover:text-green-400 transition-colors">Contact</Link>
+                <Link to="/about" className="text-sm hover:text-green-300 transition-colors">About</Link>
+                <Link to="/contact" className="text-sm hover:text-green-300 transition-colors">Contact</Link>
                 {user ? (
                   <button
                     type="button"
@@ -119,7 +119,7 @@ export default function Footer() {
                     Log out
                   </button>
                 ) : (
-                  <Link to="/login" className="text-sm hover:text-green-400 transition-colors">
+                  <Link to="/login" className="text-sm hover:text-green-300 transition-colors">
                     Log in
                   </Link>
                 )}
@@ -129,8 +129,8 @@ export default function Footer() {
           <div className="mt-14 pt-6 border-t border-white/10 flex justify-between items-center text-xs font-mono text-white/30">
             <p>© {new Date().getFullYear()} Nipipaak Magazine.</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="hover:text-white transition-colors">Instagram</a>
+              <a href="#" className="hover:text-green-300 transition-colors">Twitter</a>
+              <a href="#" className="hover:text-green-300 transition-colors">Instagram</a>
             </div>
           </div>
         </div>

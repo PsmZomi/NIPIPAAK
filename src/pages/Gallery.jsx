@@ -190,7 +190,7 @@ export default function Gallery() {
                 className={`px-5 py-2 text-[11px] font-bold uppercase tracking-widest transition-all rounded-full ${
                   currentFolderId === f.id
                     ? 'bg-ink text-white shadow-lg'
-                    : 'bg-white text-zinc-400 border border-zinc-200 hover:border-ink hover:text-ink'
+                    : 'bg-white text-zinc-400 border border-zinc-200 hover:border-green-400 hover:text-green-300'
                 }`}
               >
                 {f.name}

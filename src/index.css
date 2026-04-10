@@ -88,14 +88,16 @@
 }
 
 .prose-article .article-quill-readonly .ql-editor a:hover {
-    color: #96281b;
+    color: rgb(134 239 172);
 }
 
-/* Song lyrics in Quill shell — plain text, slight emphasis */
+/* Song lyrics in Quill shell — plain text, slight emphasis; no frame border */
 .prose-article .ql-song-lyrics .ql-container.ql-snow {
     font-family: "Playfair Display", Georgia, "DM Sans", ui-sans-serif, system-ui, serif;
     font-size: 1.125rem;
     font-style: italic;
+    border: none;
+    box-shadow: none;
 }
 
 /* Legacy plain paragraphs */
