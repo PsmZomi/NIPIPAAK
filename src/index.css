@@ -56,76 +56,46 @@
     font-style: normal;
 }
 
-/* Article view — sanitized Quill HTML */
-.prose-article .quill-body {
+/* Article view — Quill snow shell + read-only .ql-editor (matches editor chrome) */
+.prose-article .article-quill-readonly .ql-container.ql-snow {
+    height: auto;
     font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
     font-size: 1.0625rem;
+    border-color: #e5e7eb;
+}
+
+.prose-article .article-quill-readonly .ql-editor {
+    height: auto;
+    min-height: 0;
+    overflow-y: visible;
     line-height: 1.75;
     color: #1a1a1a;
+    cursor: default;
 }
 
-.prose-article .quill-body > * + * {
-    margin-top: 1rem;
+.prose-article .article-quill-readonly .ql-editor > * {
+    cursor: default;
 }
 
-.prose-article .quill-body p {
-    margin-top: 0;
-}
-
-.prose-article .quill-body h1 {
+.prose-article .article-quill-readonly .ql-editor h1,
+.prose-article .article-quill-readonly .ql-editor h2,
+.prose-article .article-quill-readonly .ql-editor h3 {
     font-family: "Playfair Display", Georgia, serif;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    line-height: 1.2;
 }
 
-.prose-article .quill-body h2 {
-    font-family: "Playfair Display", Georgia, serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.prose-article .quill-body h3 {
-    font-family: "Playfair Display", Georgia, serif;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-top: 1rem;
-}
-
-.prose-article .quill-body ul,
-.prose-article .quill-body ol {
-    padding-left: 1.5rem;
-}
-
-.prose-article .quill-body blockquote {
-    border-left: 4px solid #c0392b;
-    padding-left: 1rem;
-    margin: 1rem 0;
-    color: #4b5563;
-    font-style: italic;
-}
-
-.prose-article .quill-body pre.ql-syntax {
-    background: #111;
-    color: #f4f4f5;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    font-size: 0.875rem;
-}
-
-.prose-article .quill-body a {
+.prose-article .article-quill-readonly .ql-editor a {
     color: #c0392b;
-    text-decoration: underline;
-    text-underline-offset: 2px;
 }
 
-.prose-article .quill-body a:hover {
+.prose-article .article-quill-readonly .ql-editor a:hover {
     color: #96281b;
+}
+
+/* Song lyrics in Quill shell — plain text, slight emphasis */
+.prose-article .ql-song-lyrics .ql-container.ql-snow {
+    font-family: "Playfair Display", Georgia, "DM Sans", ui-sans-serif, system-ui, serif;
+    font-size: 1.125rem;
+    font-style: italic;
 }
 
 /* Legacy plain paragraphs */

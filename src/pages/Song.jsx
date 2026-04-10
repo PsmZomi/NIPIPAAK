@@ -5,6 +5,7 @@ import ShareButton from '../components/ShareButton'
 import { collection, query, orderBy, onSnapshot, where, getDocs, addDoc, updateDoc, increment, doc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
+import 'react-quill/dist/quill.snow.css'
 
 const LOGIN_TO_CONTRIBUTE_MSG = 'Please log in to contribute.'
 
@@ -198,14 +199,18 @@ export default function Song() {
           </div>
         </div>
 
-        {/* Song Lyrics/Content */}
+        {/* Song Lyrics/Content — same Quill snow shell as articles (plain text, line breaks preserved) */}
         <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">
           <div className="prose-article">
-            <p className="whitespace-pre-line leading-relaxed text-lg text-ink">
-              {Array.isArray(song.lyrics)
-                ? song.lyrics.join('\n')
-                : String(song.lyrics ?? '')}
-            </p>
+            <div className="article-quill-readonly ql-song-lyrics ql-snow">
+              <div className="ql-container ql-snow rounded-lg bg-white border-zinc-200">
+                <div className="ql-editor">
+                  {Array.isArray(song.lyrics)
+                    ? song.lyrics.join('\n')
+                    : String(song.lyrics ?? '')}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Share button positioned at bottom right after song content */}

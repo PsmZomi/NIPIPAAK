@@ -8,6 +8,7 @@ import { collection, query, orderBy, onSnapshot, where, getDocs, addDoc, updateD
 import { db } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import { sanitizeArticleHtml } from '../utils/sanitizeHtml'
+import 'react-quill/dist/quill.snow.css'
 
 const LOGIN_TO_CONTRIBUTE_MSG = 'Please log in to contribute.'
 
@@ -238,12 +239,16 @@ export default function Blog() {
         <article className="max-w-2xl mx-auto px-5 lg:px-0 py-14">
           <div className="prose-article">
             {post.bodyHtml ? (
-              <div
-                className="quill-body"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeArticleHtml(post.bodyHtml),
-                }}
-              />
+              <div className="article-quill-readonly ql-snow">
+                <div className="ql-container ql-snow rounded-lg bg-white border-zinc-200">
+                  <div
+                    className="ql-editor"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeArticleHtml(post.bodyHtml),
+                    }}
+                  />
+                </div>
+              </div>
             ) : (post.body || []).length > 0 ? (
               (post.body || []).map((para, i) => (
                 <p key={i} className={i === 0 ? 'drop-cap' : ''}>
