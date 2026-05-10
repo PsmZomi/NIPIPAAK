@@ -13,6 +13,8 @@ import Login from './pages/Login'
 import CreatePost from './pages/CreatePost'
 import Song from './pages/Song'
 import CreateSong from './pages/CreateSong'
+import Worldcup from './pages/WorldCup'
+import Result from './pages/Result'
 import { AuthProvider } from './context/AuthContext'
 
 function SongsPage() {
@@ -85,6 +87,8 @@ export default function App() {
             <Route path="/songs" element={<SongsPage />} />
             <Route path="/songs/:slug" element={<SongsPage />} />
             <Route path="/create-song" element={<CreateSong />} />
+            <Route path="/worldcup" element={<Worldcup />} />
+            <Route path="/result" element={<Result />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

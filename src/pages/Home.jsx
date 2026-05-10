@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useReveal } from '../components/useReveal'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
+import WorldCup from './WorldCup'
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 
@@ -146,14 +147,14 @@ export default function Home() {
 
   return (
     <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] pb-8 lg:pb-24 min-h-screen bg-paper text-ink selection:bg-border">
-      <div className="max-w-6xl mx-auto px-4 lg:px-8 lg:pb-24">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 lg:pb-24">
         {/* Masthead — snug under fixed header on mobile */}
         <header className="pt-2 pb-2 lg:pt-10 text-center">
           <p className="font-gothic text-sm sm:text-base italic text-muted">
             HuihlaK Salbu — thuthak &amp; laathaK
           </p>
         </header>
-
+        <WorldCup />
         {/* Top row — newest */}
         <section className="mt-2 mb-10" aria-labelledby="headlines-heading">
           <div className="flex items-end justify-between border-b-4 border-double border-ink mb-2 pb-2">
