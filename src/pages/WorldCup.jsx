@@ -323,9 +323,7 @@ export default function Worldcup() {
                       <span className="block text-xs font-bold text-zinc-800 normal-case tracking-normal leading-tight break-words">
                         {listHeaderTeamA}
                       </span>
-                      <span className="block text-[10px] font-semibold uppercase tracking-wide text-zinc-500 mt-0.5">
-                        Predicted goal
-                      </span>
+                      
                     </div>
                     <div role="columnheader" className="min-w-0">
                       <span className="block text-xs font-bold text-zinc-800 normal-case tracking-normal leading-tight break-words">
