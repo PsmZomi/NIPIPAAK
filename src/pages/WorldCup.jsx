@@ -35,9 +35,9 @@ export default function Worldcup() {
 
   const [teamA, setTeamA] = useState("");
   const [scoreA, setScoreA] = useState("");
+
   const [teamB, setTeamB] = useState("");
   const [scoreB, setScoreB] = useState("");
-  const [matchTime, setMatchTime] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -56,13 +56,9 @@ export default function Worldcup() {
       teamA.trim() &&
       teamB.trim() &&
       String(scoreA).trim() !== "" &&
-      String(scoreB).trim() !== "" &&
-      matchTime.trim()
+      String(scoreB).trim() !== ""
     );
-  }, [name, phone, teamA, teamB, scoreA, scoreB, matchTime]);
-
-  const listHeaderTeamA = officialTeamA.trim() || "Team A";
-  const listHeaderTeamB = officialTeamB.trim() || "Team B";
+  }, [name, phone, teamA, teamB, scoreA, scoreB]);
 
   useEffect(() => {
     const q = query(
@@ -147,13 +143,11 @@ export default function Worldcup() {
         scoreA: parsedScoreA,
         teamB: teamB.trim(),
         scoreB: parsedScoreB,
-        matchTime: matchTime.trim(),
         createdAt: serverTimestamp(),
       });
 
       setScoreA("");
       setScoreB("");
-      setMatchTime("");
       setName("");
       setPhone("");
 
@@ -198,7 +192,7 @@ export default function Worldcup() {
                 </div>
               )}
 
-              {/* MATCH PREDICTION FIRST */}
+              {/* MATCH PREDICTION */}
               <div>
                 <p className="text-sm font-bold text-white mb-3">
                   Match Prediction
@@ -312,7 +306,6 @@ export default function Worldcup() {
                     setError("");
                     setScoreA("");
                     setScoreB("");
-                    setMatchTime("");
                     setName("");
                     setPhone("");
 
@@ -343,7 +336,9 @@ export default function Worldcup() {
                   Submitted Predictions
                 </h2>
 
-                <p className="text-sm text-white/70">Latest live entries</p>
+                <p className="text-sm text-white/70">
+                  Latest live entries
+                </p>
               </div>
 
               <span className="inline-flex items-center whitespace-nowrap text-xs font-semibold text-zinc-700 bg-white border border-zinc-200 px-5 py-3 rounded-full">
@@ -393,7 +388,10 @@ export default function Worldcup() {
                           <p className="text-xs text-white/70 mt-1">
                             {String(it.phone || "")
                               .slice(0, 5)
-                              .padEnd(String(it.phone || "").length, "*")}
+                              .padEnd(
+                                String(it.phone || "").length,
+                                "*",
+                              )}
                           </p>
                         </div>
 
