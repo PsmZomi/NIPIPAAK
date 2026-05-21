@@ -132,16 +132,36 @@ const mobileMenuItems = [
   { label: "Contact", to: "/contact" },
 ];
 
+const KOM_MONTHS = [
+  "Theinosih Kha",
+  "Tuun Kha",
+  "Dota Kha",
+  "Dopi Kha",
+  "Zing Kha",
+  "Gam Kha",
+  "Taangsih Kha",
+  "Khuado Kha",
+  "Taang Kha",
+  "Phal Kha",
+  "No Kha",
+  "Kau Kha",
+];
+
+function formatPaperDate(date) {
+  const weekday = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
+    date,
+  );
+  const month = KOM_MONTHS[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${weekday}, ${month} ${day}, ${year}`;
+}
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
 
-  const paperDate = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date());
+  const paperDate = formatPaperDate(new Date());
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
