@@ -297,8 +297,8 @@ export default function Worldcup() {
                       required
                       className={`h-10 lg:h-12 flex-1 min-w-0 px-3 lg:px-4 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-green-500 ${
                         officialTeamA
-                          ? "bg-zinc-100 text-zinc-800 cursor-not-allowed"
-                          : "bg-white"
+                          ? "bg-00 text-red-700 cursor-not-allowed"
+                          : "bg-"
                       }`}
                     />
 
