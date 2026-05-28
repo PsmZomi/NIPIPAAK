@@ -12,7 +12,7 @@ export default function NotFound() {
         <p className="text-muted text-base mb-8 max-w-sm mx-auto">
           This page seems to have gone to print. Let's get you back to a story.
         </p>
-        <Link to="/" className="btn-red">← Back to Inkwell</Link>
+        <Link to="/" className="btn-red">← Back</Link>
       </div>
     </main>
   )

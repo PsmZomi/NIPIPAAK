@@ -1,4 +1,4 @@
-# Inkwell — Blog / Magazine Website
+#  — Blog / Magazine Website
 
 A fully responsive React + Vite blog/magazine website with 5 pages, built with Tailwind CSS and React Router.
 
@@ -24,7 +24,7 @@ A fully responsive React + Vite blog/magazine website with 5 pages, built with T
 ## Project Structure
 
 ```
-inkwell/
+iell/
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -55,7 +55,7 @@ inkwell/
 
 ```bash
 # 1. Enter the project folder
-cd inkwell
+cd ell
 
 # 2. Install dependencies
 npm install

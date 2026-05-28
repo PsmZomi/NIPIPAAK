@@ -8,11 +8,11 @@ const values = [
 ]
 
 const milestones = [
-  // { year: '2021', event: 'Inkwell founded in Milan with four writers and a shared Google Doc.' },
+  // { year: '2021', event: ell founded in Milan with four writers and a shared Google Doc.' },
   // { year: '2022', event: 'First 1,000 subscribers. Launched paid newsletter tier.' },
   // { year: '2023', event: 'Won the BSME Digital Magazine of the Year award.' },
   // { year: '2024', event: 'Reached 40,000 monthly readers across 60 countries.' },
-  // { year: '2025', event: 'Launched the Inkwell Fellowship for emerging writers.' },
+  // { year: '2025', event: 'Launched theell Fellowship for emerging writers.' },
   ,,,
 ]
 

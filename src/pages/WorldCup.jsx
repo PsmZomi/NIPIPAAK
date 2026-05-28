@@ -246,7 +246,7 @@ export default function Worldcup() {
             className="text-xl lg:text-3xl font-bold text-white leading-tight"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            NIPIPAAK WORLDCUP PREDICTION
+            NIPIPAAK FOOTBALL PREDICTION
           </h1>
         </header>
 
@@ -279,8 +279,8 @@ export default function Worldcup() {
               {!formOpen && (
                 <div className="bg-amber-100 text-amber-900 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-sm font-medium">
                   {hasActiveMatch && !matchLive
-                    ? "This match is disabled. Submit and Clear are turned off."
-                    : "Predictions are closed. Wait for the next live match."}
+                    ? "Prediction bei phot ei mo.Na ngak ngaive."
+                    : "beita.na ngak o mo."}
                 </div>
               )}
 
@@ -352,13 +352,13 @@ export default function Worldcup() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-4">
                 <div>
                   <label className="block text-xs lg:text-sm font-medium text-white mb-1 lg:mb-2">
-                    Name
+                    Min
                   </label>
 
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
+                    placeholder="Na Min aya"
                     autoComplete="name"
                     required
                     disabled={!formOpen}
@@ -368,7 +368,7 @@ export default function Worldcup() {
 
                 <div>
                   <label className="block text-xs lg:text-sm font-medium text-white mb-1 lg:mb-2">
-                    Phone / UPI
+                    Gpay No / UPI
                   </label>
 
                   <input
