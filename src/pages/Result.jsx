@@ -21,11 +21,46 @@ const WC_MATCH_SETTINGS_REF = doc(db, "worldcup_settings", "match");
 function readMatchLive(data) {
   const teamA = typeof data?.teamA === "string" ? data.teamA.trim() : "";
   const teamB = typeof data?.teamB === "string" ? data.teamB.trim() : "";
+  const matchId =
+    typeof data?.activeMatchId === "string" ? data.activeMatchId.trim() : "";
 
-  if (!teamA || !teamB) return false;
+  if (!teamA || !teamB || !matchId) return false;
   if (data?.isLive === false) return false;
 
   return data?.isLive === true;
+}
+
+function sameMatchId(a, b) {
+  if (a == null || b == null) return false;
+  return String(a).trim() === String(b).trim();
+}
+
+/** Predictions for the active session (matchId first, then team names for legacy rows). */
+function predictionsForSession(items, activeMatchId, teamA, teamB) {
+  const list = Array.isArray(items) ? items : [];
+  const a = String(teamA ?? "")
+    .trim()
+    .toLowerCase();
+  const b = String(teamB ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (activeMatchId) {
+    const byMatchId = list.filter((it) => sameMatchId(it.matchId, activeMatchId));
+    if (byMatchId.length > 0) return byMatchId;
+  }
+
+  if (!a || !b) return list;
+
+  return list.filter((it) => {
+    const ta = String(it.teamA ?? "")
+      .trim()
+      .toLowerCase();
+    const tb = String(it.teamB ?? "")
+      .trim()
+      .toLowerCase();
+    return ta === a && tb === b;
+  });
 }
 
 async function deletePredictionDocs(predictionItems) {
@@ -38,14 +73,18 @@ async function deletePredictionDocs(predictionItems) {
 
   for (let i = 0; i < list.length; i += BATCH_SIZE) {
     const batch = writeBatch(db);
+    let ops = 0;
 
     for (const it of list.slice(i, i + BATCH_SIZE)) {
       if (!it?.id) continue;
       batch.delete(doc(db, "worldcup_predictions", it.id));
-      deleted += 1;
+      ops += 1;
     }
 
+    if (ops === 0) continue;
+
     await batch.commit();
+    deleted += ops;
   }
 
   return deleted;
@@ -198,6 +237,7 @@ export default function Result() {
   const [teamsSaveMessage, setTeamsSaveMessage] = useState("");
 
   const [deletingLive, setDeletingLive] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
@@ -291,6 +331,7 @@ export default function Result() {
         { merge: true },
       );
 
+      setDeleteMessage("");
       setTeamsSaveMessage(
         "Saved and live. The Worldcup form is open for predictions.",
       );
@@ -310,13 +351,21 @@ export default function Result() {
 
     if (!ok) return;
 
+    const matchIdToEnd = activeMatchId;
+    const teamAToEnd = savedTeamA.trim();
+    const teamBToEnd = savedTeamB.trim();
+
     setTeamsSaveMessage("");
+    setDeleteMessage("");
     setDeletingLive(true);
 
     try {
-      const sessionItems = activeMatchId
-        ? items.filter((it) => it.matchId === activeMatchId)
-        : items;
+      const sessionItems = predictionsForSession(
+        items,
+        matchIdToEnd,
+        teamAToEnd,
+        teamBToEnd,
+      );
 
       let deletedCount = await deletePredictionDocs(sessionItems);
 
@@ -336,19 +385,25 @@ export default function Result() {
 
       setMatchLive(false);
       setActiveMatchId(null);
-      setItems((prev) =>
-        activeMatchId
-          ? prev.filter((it) => it.matchId !== activeMatchId)
-          : [],
-      );
+      setItems((prev) => {
+        const remaining = predictionsForSession(
+          prev,
+          matchIdToEnd,
+          teamAToEnd,
+          teamBToEnd,
+        );
+        const removedIds = new Set(remaining.map((it) => it.id));
+        return prev.filter((it) => !removedIds.has(it.id));
+      });
 
-      setTeamsSaveMessage(
-        `Live match ended. Deleted ${deletedCount} prediction${deletedCount === 1 ? "" : "s"}. Worldcup submit is disabled.`,
-      );
+      const msg = `Live match ended. Deleted ${deletedCount} prediction${deletedCount === 1 ? "" : "s"}. Worldcup submit is disabled.`;
+      setDeleteMessage(msg);
+      setTeamsSaveMessage(msg);
     } catch (err) {
-      setTeamsSaveMessage(
-        "Could not end match: " + (err?.message || "Unknown error"),
-      );
+      const msg =
+        "Could not end match: " + (err?.message || "Unknown error");
+      setDeleteMessage(msg);
+      setTeamsSaveMessage(msg);
     } finally {
       setDeletingLive(false);
     }
@@ -357,8 +412,13 @@ export default function Result() {
   const resultItems = useMemo(() => {
     if (!matchLive || !activeMatchId) return [];
 
-    return items.filter((it) => it.matchId === activeMatchId);
-  }, [items, matchLive, activeMatchId]);
+    return predictionsForSession(
+      items,
+      activeMatchId,
+      savedTeamA,
+      savedTeamB,
+    );
+  }, [items, matchLive, activeMatchId, savedTeamA, savedTeamB]);
 
   const predictionGroups = useMemo(() => {
     const map = new Map();
@@ -616,6 +676,18 @@ export default function Result() {
                   Also removes every prediction submitted for this match.
                 </p>
 
+                {deleteMessage ? (
+                  <p
+                    className={`text-xs text-center px-2 ${
+                      deleteMessage.startsWith("Could not")
+                        ? "text-red-700 font-medium"
+                        : "text-green-800"
+                    }`}
+                  >
+                    {deleteMessage}
+                  </p>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={handleDeleteLiveMatch}
@@ -624,6 +696,12 @@ export default function Result() {
                 >
                   {deletingLive ? "Deleting..." : "Delete live match & predictions"}
                 </button>
+
+                {!matchLive && !settingsLoading ? (
+                  <p className="text-[11px] text-zinc-500 text-center">
+                    Save teams and go live first to enable delete.
+                  </p>
+                ) : null}
               </div>
             </div>
           </section>

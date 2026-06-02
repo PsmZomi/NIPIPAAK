@@ -6,14 +6,14 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
+  serverTimestamp,  
 } from "firebase/firestore";
 import { db } from "../firebase";
 
 const WC_MATCH_SETTINGS_REF = doc(db, "worldcup_settings", "match");
 
 const PLACEHOLDER_WORLDCUP_IMAGE_URL =
-  "https://pbs.twimg.com/media/HHqhM9ZWMAQVmCr.jpg";
+  "https://imgc.allpostersimages.com/img/posters/fifa-2026-tournament-bracket_u-L-FAJ04V0.jpg";
 
 const MAIN_BG_STYLE = {
   backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.7)), url(${PLACEHOLDER_WORLDCUP_IMAGE_URL})`,
@@ -246,7 +246,7 @@ export default function Worldcup() {
             className="text-xl lg:text-3xl font-bold text-white leading-tight"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            NIPIPAAK FOOTBALL PREDICTION
+            NIPIPAAK WORLDCUP PREDICTION
           </h1>
         </header>
 
@@ -271,15 +271,15 @@ export default function Worldcup() {
               className="p-1 sm:p-4 lg:p-6 flex flex-col gap-3 lg:gap-6"
             >
               {(error || listError) && (
-                <div className="bg-red-100 text-red-700 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-sm font-medium">
+                <div className=" text-red-700 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-sm font-medium">
                   {error || listError}
                 </div>
               )}
 
               {!formOpen && (
-                <div className="bg-amber-100 text-amber-900 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-sm font-medium">
+                <div className="bg-am text-white px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-sm font-medium">
                   {hasActiveMatch && !matchLive
-                    ? "Prediction bei phot ei mo.Na ngak ngaive."
+                    ? "Prediction bei phot ei mo.Na ngak phot ni mo."
                     : "beita.na ngak o mo."}
                 </div>
               )}
@@ -297,7 +297,7 @@ export default function Worldcup() {
                       required
                       className={`h-10 lg:h-12 flex-1 min-w-0 px-3 lg:px-4 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-green-500 ${
                         officialTeamA
-                          ? "bg-00 text-red-700 cursor-not-allowed"
+                          ? "bg-00 text-r cursor-not-allowed"
                           : "bg-"
                       }`}
                     />
@@ -474,7 +474,7 @@ export default function Worldcup() {
                     {hasActiveMatch
                       ? matchLive
                         ? "⚽ No predictions yet."
-                        : "Match disabled — submissions closed."
+                        : "''"
                       : "No predictions for this match."}
                   </div>
                 ) : (

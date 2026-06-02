@@ -147,14 +147,23 @@ const KOM_MONTHS = [
   "Kau Kha",
 ];
 
+/** Sunday = 0 … Saturday = 6 */
+const KOM_WEEKDAYS = [
+  "Nipi",
+  "Pizing",
+  "Pithai",
+  "Nilai",
+  "Laizing",
+  "Laithai",
+  "Nino",
+];
+
 function formatPaperDate(date) {
-  const weekday = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
-    date,
-  );
+  const weekday = KOM_WEEKDAYS[date.getDay()];
   const month = KOM_MONTHS[date.getMonth()];
   const day = date.getDate();
   const year = date.getFullYear();
-  return `${weekday}, ${month} ${day}, ${year}`;
+  return `${weekday}, ${month}, Ni ${day}, ${year}`;
 }
 
 export default function Header() {
