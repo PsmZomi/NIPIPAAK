@@ -62,7 +62,7 @@ function Breadcrumbs() {
 
 function AppShell() {
   const { pathname } = useLocation()
-  const { isAuthed, clearAuthed } = usePawlpiSession()
+  const { isAuthed, clearGate } = usePawlpiSession()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -70,9 +70,9 @@ function AppShell() {
 
   useEffect(() => {
     if (pathname !== '/pawlpi') {
-      clearAuthed()
+      clearGate()
     }
-  }, [pathname, clearAuthed])
+  }, [pathname, clearGate])
 
   const hideFooter = pathname === '/pawlpi' && isAuthed
 

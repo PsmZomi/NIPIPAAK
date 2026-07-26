@@ -2,20 +2,102 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /worldcup_predictions/{predictionId} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'phone', 'teamA', 'teamB', 'scoreA', 'scoreB', 'createdAt'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.phone is string;
-      allow delete: if true;
-      allow update: if false;
+
+    function isSignedIn() {
+      return request.auth != null;
     }
 
+    function pawlpiRole() {
+      return get(/databases/$(database)/documents/pawlpi_roles/$(request.auth.uid)).data.role;
+    }
+
+    function isPawlpiEditor() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/pawlpi_roles/$(request.auth.uid))
+        && pawlpiRole() == 'editor';
+    }
+
+    function isPawlpiViewerOrEditor() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/pawlpi_roles/$(request.auth.uid))
+        && (pawlpiRole() == 'editor' || pawlpiRole() == 'viewer');
+    }
+
+    // Pawlpi: role on any NIPIPAAK Auth user (UID = doc id)
+    match /pawlpi_roles/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /pawlpi_stores/{docId} {
+      allow read: if isPawlpiViewerOrEditor();
+      allow create, update, delete: if isPawlpiEditor();
+    }
+
+    // Blogs
+    match /blogs/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string;
+        allow update, delete: if request.auth != null
+          && resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // News
+    match /news/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string;
+        allow update, delete: if request.auth != null
+          && resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // Songs
+    match /songs/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string;
+        allow update, delete: if request.auth != null
+          && resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // World Cup Predictions
+    match /worldcup_predictions/{docId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.name is string &&
+        request.resource.data.phone is string &&
+        request.resource.data.teamA is string &&
+        request.resource.data.teamB is string &&
+        request.resource.data.scoreA is int &&
+        request.resource.data.scoreB is int;
+
+      allow update, delete: if false;
+    }
+
+    // Match Settings
     match /worldcup_settings/{docId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null;
     }
   }
 }

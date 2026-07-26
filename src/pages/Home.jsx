@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useReveal } from '../components/useReveal'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
-import WorldCup from './WorldCup'
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 
