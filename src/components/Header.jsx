@@ -149,13 +149,13 @@ const KOM_MONTHS = [
 
 /** Sunday = 0 … Saturday = 6 */
 const KOM_WEEKDAYS = [
-  "Nipi",
-  "Pizing",
-  "Pithai",
-  "Nilai",
-  "Laizing",
-  "Laithai",
-  "Nino",
+  "NipiNi",
+  "Pizing Ni",
+  "Pithai Ni",
+  "Nilai Ni",
+  "Laizing Ni",
+  "Laithai Ni",
+  "Nino Ni",
 ];
 
 function formatPaperDate(date) {

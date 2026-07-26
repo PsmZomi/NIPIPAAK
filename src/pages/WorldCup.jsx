@@ -13,12 +13,13 @@ import { db } from "../firebase";
 const WC_MATCH_SETTINGS_REF = doc(db, "worldcup_settings", "match");
 
 const PLACEHOLDER_WORLDCUP_IMAGE_URL =
-  "https://imgc.allpostersimages.com/img/posters/fifa-2026-tournament-bracket_u-L-FAJ04V0.jpg";
+  "https://i0.wp.com/www.voiceofsikkim.com/wp-content/uploads/2026/07/FIFA-WC2026-France-vs-Spain-Semifinal.jpg?resize=1280%2C720&ssl=1";
 
 const MAIN_BG_STYLE = {
   backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.7)), url(${PLACEHOLDER_WORLDCUP_IMAGE_URL})`,
-  backgroundSize: "contain",
+  backgroundSize: "cover",
   backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
   backgroundAttachment:
     typeof window !== "undefined" && window.innerWidth < 768
       ? "scroll"

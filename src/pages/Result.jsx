@@ -516,13 +516,13 @@ export default function Result() {
   }
 
   return (
-    <main className="min-h-screen pt-[50px] lg:pt-[120px] pb-20 bg-zinc-50">
+    <main className="min-h-screen pt-[80px] lg:pt-[120px] pb-20 bg-zinc-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-5">
         {/* TOP */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
           <div>
             <h1
-              className="text-3xl font-bold text-zinc-900"
+              className="text-2xl font-bold text-zinc-900"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               World Cup Admin & Results
@@ -629,7 +629,7 @@ export default function Result() {
                 </h2>
 
                 <p className="mt-1 text-xs text-green-900/80">
-                  Active match on the public Worldcup page.
+                  Active match.
                 </p>
               </div>
 

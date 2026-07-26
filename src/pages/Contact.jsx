@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useReveal } from '../components/useReveal'
+import { useAuth } from '../context/AuthContext'
 
 const reasons = [
   'General enquiry',
@@ -10,16 +12,11 @@ const reasons = [
   'Something else',
 ]
 
-const faqs = [
-  { q: 'How do I pitch a story?', a: 'Use the form below and select "Pitch a story". Include your headline, a 2–3 sentence summary, and a link to previous work. We respond within 5 business days.' },
-  { q: 'Do you accept unsolicited work?', a: 'Yes — but please pitch first. We rarely accept fully written pieces without prior contact, as we prefer to work with writers from the outline stage.' },
-  { q: 'How much do you pay?', a: 'We pay £400–£1,200 per published piece depending on length and research involved. We believe fair pay is non-negotiable.' },
-  { q: 'How do I cancel my newsletter subscription?', a: 'Every newsletter email has an unsubscribe link at the bottom. Click it and you\'ll be removed within 24 hours.' },
-]
-
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', reason: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useAuth()
   useEffect(() => { window.scrollTo(0, 0) }, [])
   useReveal()
 
@@ -42,6 +39,20 @@ export default function Contact() {
           </h1>
         </div>
       </div>
+
+      {user ? (
+        <section className="border-t border-border py-14 lg:py-20">
+          <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center justify-center items-center flex">
+            <button
+              type="button"
+              onClick={() => navigate('/pawlpi')}
+              className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-ink text-sm font-bold transition-colors"
+            >
+              Admin Access
+            </button>
+          </div>
+        </section>
+      ) : null}
 
 
       {/* FAQ */}

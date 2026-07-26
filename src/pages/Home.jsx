@@ -154,7 +154,6 @@ export default function Home() {
             HuihlaK Salbu — thuthak &amp; laathaK
           </p>
         </header>
-        <WorldCup />
         {/* Top row — newest */}
         <section className="mt-2 mb-10" aria-labelledby="headlines-heading">
           <div className="flex items-end justify-between border-b-4 border-double border-ink mb-2 pb-2">
