@@ -91,17 +91,13 @@ function PawlpiLogin({ onUnlocked }) {
           >
             Pawlpi Login
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            Enter your NIPIPAAK email and password. Access requires a Pawlpi
-            role.
-          </p>
         </div>
 
         <div className="p-6 lg:p-8 rounded-xl border border-border shadow-sm bg-paper backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="block text-sm font-medium text-ink mb-1">
-                Email
+                ID
               </label>
               <input
                 type="email"
@@ -115,7 +111,7 @@ function PawlpiLogin({ onUnlocked }) {
 
             <div>
               <label className="block text-sm font-medium text-ink mb-1">
-                Password
+                Nambat Genziau O
               </label>
               <div className="relative">
                 <input
@@ -148,7 +144,7 @@ function PawlpiLogin({ onUnlocked }) {
                   disabled={loading}
                   className="w-fit font-bold py-2 px-4 transition-colors border-2 rounded-lg text-ink hover:bg-zinc-50 disabled:opacity-50"
                 >
-                  {loading ? "…" : "Enter Pawlpi"}
+                  {loading ? "…" : "Thru vele"}
                 </button>
               )}
             </div>
