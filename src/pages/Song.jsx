@@ -158,7 +158,7 @@ export default function Song() {
   // Detail view rendering
   if (slug && loading) {
     return (
-      <main className="pt-[146px] lg:pt-[131px] min-h-screen flex items-center justify-center">
+      <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-gray-200 border-t-accent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted text-sm font-mono">Loading song...</p>
@@ -172,7 +172,7 @@ export default function Song() {
   // Show detail view if slug exists
   if (slug && song) {
     return (
-      <main className="pt-[146px] lg:pt-[131px]">
+      <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px]">
         {/* Song Hero */}
         <div className="bg-gradient-to-br from-green-900 to-black py-4 lg:py-4">
           <div className="max-w-7xl mx-auto px-5 lg:px-10">
@@ -319,7 +319,7 @@ export default function Song() {
   })
 
   return (
-    <main className="pt-[146px] lg:pt-[131px] min-h-screen bg-gray-50">
+    <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] min-h-screen bg-gray-50">
 
       {/* Page header */}
       <div className="bg-gradient-to-br from-green-900 to-black text-white py-6 lg:py-10">

@@ -92,7 +92,9 @@ export default function Home() {
           if (!cancelled) setGalleryPreview([])
           return
         }
-        const folders = JSON.parse(raw)
+        const folders = JSON.parse(raw).filter(
+          (f) => f?.name && String(f.name).toLowerCase() !== 'archive'
+        )
         const folderName = folders[0]?.name
         if (!folderName) {
           if (!cancelled) setGalleryPreview([])

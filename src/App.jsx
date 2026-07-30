@@ -17,7 +17,7 @@ import Worldcup from './pages/WorldCup'
 import Result from './pages/Result'
 import { AuthProvider } from './context/AuthContext'
 import { PawlpiSessionProvider, usePawlpiSession } from './context/PawlpiSessionContext'
-import Pawlpi from './components/Pawlpi'
+import Pawlpi from './components/PawlpiLogin'
 
 function SongsPage() {
   const { pathname } = useLocation()

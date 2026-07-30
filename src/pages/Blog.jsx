@@ -166,7 +166,7 @@ export default function Blog() {
   // Detail view rendering
   if (slug && loading) {
     return (
-      <main className="pt-[146px] lg:pt-[131px] min-h-screen flex items-center justify-center">
+      <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-gray-200 border-t-accent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted text-sm font-mono">Loading story...</p>
@@ -180,7 +180,7 @@ export default function Blog() {
   // Show detail view if slug exists
   if (slug && post) {
     return (
-      <main className="pt-[146px] lg:pt-[131px]">
+      <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px]">
         {/* Article Hero - Side by Side Layout */}
         <div className={`bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black'} py-4 lg:py-4`}>
           <div className="max-w-7xl mx-auto px-5 lg:px-10">
@@ -364,7 +364,7 @@ export default function Blog() {
   })
 
   return (
-    <main className="pt-[146px] lg:pt-[131px] min-h-screen bg-gray-50">
+    <main className="pt-[64px] sm:pt-[72px] lg:pt-[89px] min-h-screen bg-gray-50">
 
       {/* Page header */}
       <div className="bg-gradient-to-br from-gray-900 to-black text-white py-6 lg:py-10">

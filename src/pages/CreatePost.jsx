@@ -115,12 +115,6 @@ export default function CreatePost() {
             const slug = generateSlug(title);
 
             if (type === 'song') {
-                if (!author) {
-                    setError('Lai Gelh is required for songs');
-                    setLoading(false);
-                    return;
-                }
-
                 const lyricsArray = lyricsText.split(/\r?\n/);
                 if (!lyricsArray.some((l) => l.trim().length > 0)) {
                     setError('Please add lyrics.');
@@ -131,7 +125,7 @@ export default function CreatePost() {
                 const songData = {
                     title,
                     slug,
-                    artist: author,
+                    artist: author.trim() || user.displayName || user.email || 'Anonymous',
                     lyrics: lyricsArray,
                     date: new Date().toLocaleDateString('en-US', {
                         month: 'short',
@@ -190,18 +184,18 @@ export default function CreatePost() {
     };
 
     return (
-        <main className="min-h-screen pt-[130px] lg:pt-[115px] bg-gray-50 pb-20">
+        <main className="min-h-screen pt-[80px] lg:pt-[115px] bg-gray-50 pb-20">
             <div className="max-w-4xl mx-auto px-5">
                 <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                     Create & Publish
                 </h1>
-                <p className="text-gray-600 mb-8">Choose your content type and share with the world</p>
+                {/* <p className="text-gray-600 mb-8">Choose your content type and share with the world</p> */}
 
                 {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6"
+                    className=" p-2 rounded-2xl shadow-sm flex flex-col gap-6"
                 >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -234,19 +228,21 @@ export default function CreatePost() {
 
                     {type !== 'song' && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
-                            <div className="flex items-center gap-4">
-                                {image && (
-                                    <img
-                                        src={image}
-                                        alt="Preview"
-                                        className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                                    />
-                                )}
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Limlak</label>
+                            <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                                {image ? (
+                                    <div className="w-full sm:w-72 h-44 sm:h-48 rounded-lg border border-gray-200 bg-zinc-100 overflow-hidden flex items-center justify-center shrink-0">
+                                        <img
+                                            src={image}
+                                            alt="Preview"
+                                            className="max-w-full max-h-full w-auto h-full object-contain"
+                                        />
+                                    </div>
+                                ) : null}
                                 <button
                                     type="button"
                                     onClick={handleImageUpload}
-                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors border border-gray-300"
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors border border-gray-300 w-fit"
                                 >
                                     {image ? 'Change Image' : 'Lim upload na'}
                                 </button>
@@ -286,29 +282,28 @@ export default function CreatePost() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Lai Gelh
+                            Lai Gelh <span className="text-gray-400 font-normal">(optional)</span>
                         </label>
                         <input
                             type="text"
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
-                            placeholder={type === 'song' ? 'Your Lai Gelh name' : 'Your name or pen name'}
-                            required
+                            placeholder={type === 'song' ? '' : ''}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
 
-                    <div className="pt-4 border-t border-gray-100 flex justify-between">
+                    <div className="pt-4 border-t items-center justify-center border-gray-100 flex border">
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all duration-300 disabled:opacity-70 ${
+                            className={`text-white font-bold py-2 px-6 rounded-lg border border-inkshadow-md transition-all duration-300 disabled:opacity-70 ${
                                 type === 'song'
-                                    ? 'bg-green-600 hover:bg-green-700'
+                                    ? 'bg-green-300 hover:bg-green-700'
                                     : 'bg-ink hover:bg-black'
                             }`}
                         >
-                            {loading ? 'Publishing...' : `Publish ${type === 'song' ? 'Song' : 'Entry'}`}
+                            {loading ? 'Publishing...' : `Publish`}
                         </button>
                     </div>
                 </form>
