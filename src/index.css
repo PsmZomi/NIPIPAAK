@@ -91,6 +91,17 @@
     color: rgb(134 239 172);
 }
 
+.prose-article .article-quill-readonly .ql-editor img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Song lyrics in Quill shell — plain text, slight emphasis; no frame border */
 .prose-article .ql-song-lyrics .ql-container.ql-snow {
     font-family: "Playfair Display", Georgia, "DM Sans", ui-sans-serif, system-ui, serif;

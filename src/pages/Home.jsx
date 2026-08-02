@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { useReveal } from '../components/useReveal'
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  where,
+} from 'firebase/firestore'
 import { db } from '../firebase'
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
@@ -33,6 +39,12 @@ function byLikes(news, blogs, limit) {
     .filter((x) => x.slug)
     .sort((a, b) => (b.likes || 0) - (a.likes || 0))
     .slice(0, limit)
+}
+
+function photoUrl(publicId, storedUrl) {
+  if (storedUrl) return storedUrl
+  if (!publicId || !CLOUD_NAME) return PLACEHOLDER_IMG
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_480,h_360,c_fill,g_auto,f_auto,q_auto/${publicId}`
 }
 
 export default function Home() {
@@ -85,38 +97,61 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false
-    ;(async () => {
-      try {
-        const raw = localStorage.getItem('galleryFolders')
-        if (!raw || !CLOUD_NAME) {
-          if (!cancelled) setGalleryPreview([])
+    let unsubPhotos = null
+
+    const unsubAlbums = onSnapshot(
+      query(collection(db, 'gallery_albums'), orderBy('createdAt', 'asc')),
+      async (snap) => {
+        if (cancelled) return
+        const albums = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter(
+            (a) => a?.name && String(a.name).toLowerCase() !== 'archive',
+          )
+        const first = albums[0]
+        if (!first) {
+          setGalleryPreview([])
           return
         }
-        const folders = JSON.parse(raw).filter(
-          (f) => f?.name && String(f.name).toLowerCase() !== 'archive'
+
+        if (unsubPhotos) unsubPhotos()
+        unsubPhotos = onSnapshot(
+          query(
+            collection(db, 'gallery_photos'),
+            where('albumId', '==', first.id),
+          ),
+          (photoSnap) => {
+            if (cancelled) return
+            const thumbs = photoSnap.docs
+              .map((d) => {
+                const data = d.data()
+                return {
+                  id: d.id,
+                  url: photoUrl(data.publicId, data.url),
+                  caption: data.caption || '',
+                  createdAt: data.createdAt,
+                }
+              })
+              .sort((a, b) => createdMs(b) - createdMs(a))
+              .slice(0, 8)
+            setGalleryPreview(thumbs)
+          },
+          (err) => {
+            console.warn(err)
+            if (!cancelled) setGalleryPreview([])
+          },
         )
-        const folderName = folders[0]?.name
-        if (!folderName) {
-          if (!cancelled) setGalleryPreview([])
-          return
-        }
-        const res = await fetch(
-          `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folderName}.json`
-        )
-        if (!res.ok || cancelled) return
-        const data = await res.json()
-        const thumbs = (data.resources || []).slice(0, 8).map((r) => ({
-          id: r.public_id,
-          url: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_480,h_360,c_fill,g_auto,f_auto,q_auto/${r.public_id}`,
-          caption: r.context?.custom?.caption || '',
-        }))
-        if (!cancelled) setGalleryPreview(thumbs)
-      } catch {
+      },
+      (err) => {
+        console.warn(err)
         if (!cancelled) setGalleryPreview([])
-      }
-    })()
+      },
+    )
+
     return () => {
       cancelled = true
+      unsubAlbums()
+      if (unsubPhotos) unsubPhotos()
     }
   }, [])
 
@@ -320,7 +355,7 @@ export default function Home() {
 
           {galleryPreview.length === 0 ? (
             <div className="border border-dashed border-ink/20 bg-white/50 py-12 text-center font-mono text-xs text-muted">
-              Open Gallery to add albums; previews appear here from your first Cloudinary folder.
+              Open Gallery to add albums; shared photos show here.
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
@@ -355,15 +390,14 @@ export default function Home() {
             Editor&apos;s note
           </p>
           <p className="font-display text-base sm:text-lg italic leading-relaxed text-ink max-w-3xl">
-            This edition gathers fresh reporting, long reads, verse set to music, and images from
-            the field. For corrections or tips, we welcome a line via{' '}
+            Lungdam Ei, Nipipaak Salbuu nong hawh man in.Thu le laa midang in a phattuam pih theih ding te zong ong gelh zelzel in mo.Lungdam
             <Link to="/contact" className="text-accent underline-offset-2 hover:text-green-300 hover:underline not-italic transition-colors">
               Contact
             </Link>
             .
           </p>
           <p className="mt-4 font-mono text-[9px] text-muted">
-            * Salbuu is published in the spirit of the reading room — take your time with each page.
+            * Salbuu is published in the spirit of the reading room.
           </p>
         </aside>
       </div>

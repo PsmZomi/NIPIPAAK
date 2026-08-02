@@ -99,5 +99,31 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // Public gallery — anyone can view; only signed-in NIPIPAAK users can create
+    // Publish these rules in Firebase Console (repo file does not auto-deploy).
+    match /gallery_albums/{albumId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.keys().hasAll(['name', 'createdAt']);
+      allow update, delete: if false;
+    }
+
+    match /gallery_photos/{photoId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.albumId is string
+        && request.resource.data.albumName is string
+        && request.resource.data.publicId is string
+        && request.resource.data.url is string
+        && request.resource.data.caption is string
+        && request.resource.data.keys().hasAll([
+          'albumId', 'albumName', 'publicId', 'url', 'caption', 'createdAt'
+        ]);
+      allow update, delete: if false;
+    }
   }
 }

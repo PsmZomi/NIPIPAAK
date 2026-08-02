@@ -116,7 +116,7 @@ export default function Footer() {
                   Nipipaak
                 </span>
               </Link>
-              <p className="text-sm text-white/60">A magazine for the curious.</p>
+              <p className="text-sm text-white/60">A site for pilsin momno.</p>
             </div>
             <div className="col-span-3 flex justify-end gap-20">
               <div className="flex flex-col gap-3">

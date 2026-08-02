@@ -188,8 +188,12 @@ export default function Blog() {
               {/* Left side: Image */}
               <div className="w-full order-1 lg:order-1">
                 {post.image ? (
-                  <div className="rounded-2xl overflow-hidden shadow-2xl aspect-video lg:aspect-[16/10] relative">
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover absolute inset-0" />
+                  <div className="rounded-2xl overflow-hidden shadow-2xl bg-black/20 flex items-center justify-center">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-auto max-h-[65vh] lg:max-h-[75vh] object-contain"
+                    />
                   </div>
                 ) : (
                   <div className="rounded-2xl overflow-hidden shadow-2xl bg-white/10 aspect-video lg:aspect-[16/10] flex items-center justify-center text-8xl">
@@ -240,7 +244,7 @@ export default function Blog() {
           <div className="prose-article">
             {post.bodyHtml ? (
               <div className="article-quill-readonly ql-snow">
-                <div className="ql-container ql-snow rounded-lg bg-white border-zinc-200">
+                <div className="ql-container ql-snow rounded-lg bg-white border-zinc-200 text-black">
                   <div
                     className="ql-editor"
                     dangerouslySetInnerHTML={{
@@ -267,7 +271,7 @@ export default function Blog() {
 
           {/* Lai Gelh card */}
           <div className="mt-14 pt-8 border-t border-border flex gap-5 items-start">
-            <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black'} rounded-full flex items-center justify-center text-2xl`}>
+            <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${post.gradient || 'from-gray-900 to-black]'} rounded-full flex items-center justify-center text-2xl`}>
               👤
             </div>
             <div>
