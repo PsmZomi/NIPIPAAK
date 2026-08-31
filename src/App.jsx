@@ -29,7 +29,7 @@ function Breadcrumbs() {
   const pathnames = pathname.split('/').filter(Boolean);
 
   return (
-    <nav className="bg-white px-4 py-2 border-b border-zinc-200 text-sm font-medium relative z-40">
+    <nav className="bg-white px-4 py-1.5 sm:py-2 border-b border-zinc-200 text-xs sm:text-sm font-medium relative z-40">
       <ol className="flex flex-wrap gap-2 text-zinc-500">
         <li>
           {pathname === '/' ? (
@@ -75,11 +75,12 @@ function AppShell() {
   }, [pathname, clearGate])
 
   const hideFooter = pathname === '/pawlpi' && isAuthed
+  const hideBreadcrumbs = pathname === '/pawlpi' && isAuthed
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <Breadcrumbs />
+      {!hideBreadcrumbs ? <Breadcrumbs /> : null}
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />

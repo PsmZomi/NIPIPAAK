@@ -6,6 +6,12 @@ import { usePawlpiSession } from "../context/PawlpiSessionContext";
 import { fetchPawlpiRole } from "../utils/pawlpiSession";
 import Pawlpi from "./Pawlpi";
 import Pawlpisum from "./Pawlpisum";
+import PawlpiProfit from "./PawlpiProfit";
+import {
+  defaultTableYear,
+  profitYears,
+  tableYears,
+} from "../utils/pawlpiHelpers";
 
 const NIPIPAAK_LOGO_URL =
   "https://res.cloudinary.com/dpgqehxeh/image/upload/e_background_removal/f_png/v1772016903/clmwampvntxosiidecar.png";
@@ -106,7 +112,7 @@ function PawlpiLoginForm({ onUnlocked }) {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                className="w-full px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-paper"
               />
             </div>
 
@@ -121,7 +127,7 @@ function PawlpiLoginForm({ onUnlocked }) {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-white pr-10"
+                  className="w-full px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-green-500 bg-paper pr-10"
                 />
                 <button
                   type="button"
@@ -159,6 +165,9 @@ function PawlpiLoginForm({ onUnlocked }) {
 export default function PawlpiRoute() {
   const { loading, isAuthed, canEdit, role, unlockGate, refreshRole } =
     usePawlpiSession();
+  const [selectedYear, setSelectedYear] = useState(defaultTableYear);
+  const tableYearList = tableYears();
+  const profitYearList = profitYears();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -171,7 +180,7 @@ export default function PawlpiRoute() {
 
   if (loading && isAuthed) {
     return (
-      <main className="relative min-h-screen pt-[105px] lg:pt-[110px] bg-zinc-50 flex items-center justify-center">
+      <main className="relative min-h-screen pt-[100px] sm:pt-[104px] lg:pt-[112px] bg-paper flex items-center justify-center">
         <p className="font-mono text-xs uppercase tracking-widest text-muted">
           Loading…
         </p>
@@ -181,19 +190,31 @@ export default function PawlpiRoute() {
 
   return (
     <main
-      className={`relative min-h-screen pt-[105px] lg:pt-[110px] bg-zinc-50 ${isAuthed ? "pb-8" : "pb-20"}`}
+      className={`relative min-h-screen pt-[100px] sm:pt-[104px] lg:pt-[112px] bg-paper ${isAuthed ? "pb-8" : "pb-20"}`}
     >
       <div
         className={`relative z-10 max-w-7xl mx-auto px-4 lg:px-8 ${
           isAuthed
-            ? "pt-1 pb-4 lg:pt-2 lg:pb-6"
+            ? "pt-1 pb-4 lg:pb-6"
             : "py-10 lg:py-14 flex min-h-[calc(100vh-8rem)] items-center justify-center"
         }`}
       >
         {isAuthed ? (
           <div className="w-full">
-            <Pawlpi />
-            <Pawlpisum canEdit={canEdit} role={role} />
+            <Pawlpi
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              years={tableYearList}
+            />
+            <PawlpiProfit canEdit={canEdit} years={profitYearList} />
+            <Pawlpisum
+              canEdit={canEdit}
+              role={role}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              years={tableYearList}
+              hideYearPicker
+            />
           </div>
         ) : (
           <PawlpiLoginForm onUnlocked={handleUnlocked} />

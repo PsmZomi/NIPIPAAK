@@ -5,6 +5,7 @@ export const PAWLPI_ROLES_COL = "pawlpi_roles";
 export const PAWLPI_STORES_COL = "pawlpi_stores";
 export const PAWLPI_COLLECTION_DOC = "collection";
 export const PAWLPI_LOAN_DOC = "loan";
+export const PAWLPI_PROFIT_DOC = "profit";
 
 /** Cleared when leaving /pawlpi — forces email/password again next visit. */
 export const PAWLPI_GATE_KEY = "pawlpi_gate_unlocked";
