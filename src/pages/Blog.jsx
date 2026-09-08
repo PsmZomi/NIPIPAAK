@@ -218,7 +218,7 @@ export default function Blog() {
                   <div className="flex flex-col gap-1">
                     <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Lai Gelh</span>
                     <span className="text-white font-bold tracking-tight text-sm">
-                      {post.authorData?.name || post.author || "Anonymous"}
+                      {post.authorData?.name || post.author || ''}
                     </span>
                   </div>
 
@@ -265,7 +265,15 @@ export default function Blog() {
           </div>
 
           {/* Share button positioned at bottom right after article content */}
-          <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
+          <div className="flex justify-end items-center gap-3 mt-8 pt-6 border-t border-gray-200">
+            {user?.uid && post.uid === user.uid ? (
+              <Link
+                to={`/create-post/edit/${post.type}/${post.id}`}
+                className="px-4 py-2 text-sm font-bold uppercase tracking-wider rounded-lg border border-zinc-200 text-ink hover:border-green-400 hover:text-green-600 transition-colors"
+              >
+                Edit
+              </Link>
+            ) : null}
             <ShareButton />
           </div>
 
@@ -277,7 +285,7 @@ export default function Blog() {
             <div>
               <p className="section-label mb-1">Lai Gelh</p>
               <h4 className="font-bold text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
-                {post.author}
+                {post.author || ''}
               </h4>
             </div>
           </div>

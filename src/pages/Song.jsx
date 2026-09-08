@@ -189,7 +189,7 @@ export default function Song() {
                 <div className="flex flex-col gap-1 text-center">
                   <span className="text-[9px] uppercase tracking-[0.3em] text-white/40">Lai Gelh</span>
                   <span className="text-white font-bold tracking-tight text-sm">
-                    {song.artist || "Anonymous"}
+                    {song.artist || ''}
                   </span>
                 </div>
 
@@ -225,10 +225,18 @@ export default function Song() {
             <div className="text-left min-w-0">
               <p className="section-label mb-2">Lai Gelh</p>
               <h4 className="font-bold text-xl" style={{ fontFamily: "'Playfair Display', serif" }}>
-                {song.artist || "Anonymous"}
+                {song.artist || ''}
               </h4>
             </div>
-            <div className="flex justify-end sm:justify-end shrink-0 self-end sm:self-auto">
+            <div className="flex justify-end sm:justify-end shrink-0 self-end sm:self-auto items-center gap-3">
+              {user?.uid && song.uid === user.uid ? (
+                <Link
+                  to={`/create-song/edit/${song.id}`}
+                  className="px-4 py-2 text-sm font-bold uppercase tracking-wider rounded-lg border border-zinc-200 text-ink hover:border-green-400 hover:text-green-600 transition-colors"
+                >
+                  Edit
+                </Link>
+              ) : null}
               <ShareButton />
             </div>
           </div>

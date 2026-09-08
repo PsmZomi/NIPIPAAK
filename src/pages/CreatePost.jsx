@@ -3,8 +3,15 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import {
+    collection,
+    addDoc,
+    doc,
+    getDoc,
+    serverTimestamp,
+    updateDoc,
+} from 'firebase/firestore';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     sanitizeArticleHtml,
     isQuillContentEmpty,
@@ -18,9 +25,17 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const LOGIN_TO_CONTRIBUTE_MSG = 'Please log in to contribute.';
 const GUEST_CREATE_ALERT_KEY = 'nipipaak-create-post-guest-alert';
 
+function collectionForType(type) {
+    if (type === 'blog') return 'blogs';
+    if (type === 'news') return 'news';
+    return 'songs';
+}
+
 export default function CreatePost() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { type: editType, id: editId } = useParams();
+    const isEdit = Boolean(editType && editId);
 
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
@@ -30,7 +45,9 @@ export default function CreatePost() {
     const [articleHtml, setArticleHtml] = useState('');
     const [image, setImage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [loadingDoc, setLoadingDoc] = useState(isEdit);
     const [error, setError] = useState('');
+    const [savedSlug, setSavedSlug] = useState('');
 
     const quillModules = useMemo(
         () => ({
@@ -43,7 +60,7 @@ export default function CreatePost() {
                 ['clean'],
             ],
         }),
-        []
+        [],
     );
 
     const quillFormats = [
@@ -79,12 +96,91 @@ export default function CreatePost() {
         navigate('/login', { replace: true });
     }, [user, navigate]);
 
+    useEffect(() => {
+        if (!isEdit || !user) return;
+
+        let cancelled = false;
+
+        async function loadForEdit() {
+            setLoadingDoc(true);
+            setError('');
+
+            try {
+                const contentType = editType;
+                if (!['blog', 'news', 'song'].includes(contentType)) {
+                    navigate('/create-post', { replace: true });
+                    return;
+                }
+
+                const col = collectionForType(contentType);
+                const snap = await getDoc(doc(db, col, editId));
+                if (!snap.exists()) {
+                    navigate(contentType === 'song' ? '/songs' : '/blog', {
+                        replace: true,
+                    });
+                    return;
+                }
+
+                const data = snap.data();
+                if (data.uid !== user.uid) {
+                    setError('You can only edit your own posts.');
+                    navigate(-1);
+                    return;
+                }
+
+                if (cancelled) return;
+
+                setType(contentType);
+                setTitle(data.title || '');
+                setSavedSlug(data.slug || '');
+
+                if (contentType === 'song') {
+                    setAuthor(data.artist || '');
+                    setLyricsText(
+                        Array.isArray(data.lyrics)
+                            ? data.lyrics.join('\n')
+                            : String(data.lyrics ?? ''),
+                    );
+                } else {
+                    setAuthor(data.author || '');
+                    setExcerpt(data.excerpt || '');
+                    setImage(data.image || '');
+                    setArticleHtml(data.bodyHtml || '');
+                }
+            } catch (err) {
+                console.error(err);
+                if (!cancelled) {
+                    setError('Failed to load post for editing.');
+                }
+            } finally {
+                if (!cancelled) setLoadingDoc(false);
+            }
+        }
+
+        loadForEdit();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isEdit, editType, editId, user, navigate]);
+
     if (!user) {
         return null;
     }
 
+    if (loadingDoc) {
+        return (
+            <main className="min-h-screen pt-[80px] lg:pt-[115px] bg-gray-50 pb-20 flex items-center justify-center">
+                <p className="font-mono text-sm text-muted">Loading…</p>
+            </main>
+        );
+    }
+
     const generateSlug = (text) => {
-        return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
     };
 
     const handleImageUpload = () => {
@@ -102,7 +198,7 @@ export default function CreatePost() {
                 if (!err && result.event === 'success') {
                     setImage(result.info.secure_url);
                 }
-            }
+            },
         );
     };
 
@@ -112,7 +208,7 @@ export default function CreatePost() {
         setError('');
 
         try {
-            const slug = generateSlug(title);
+            const slug = isEdit ? savedSlug : generateSlug(title);
 
             if (type === 'song') {
                 const lyricsArray = lyricsText.split(/\r?\n/);
@@ -122,23 +218,32 @@ export default function CreatePost() {
                     return;
                 }
 
-                const songData = {
+                const songFields = {
                     title,
-                    slug,
-                    artist: author.trim() || user.displayName || user.email || 'Anonymous',
+                    artist: author.trim(),
                     lyrics: lyricsArray,
-                    date: new Date().toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                    }),
-                    createdAt: serverTimestamp(),
-                    likes: 0,
-                    likedBy: [],
+                    updatedAt: serverTimestamp(),
                 };
 
-                await addDoc(collection(db, 'songs'), songData);
-                navigate('/songs');
+                if (isEdit) {
+                    await updateDoc(doc(db, 'songs', editId), songFields);
+                    navigate(slug ? `/songs/${slug}` : '/songs');
+                } else {
+                    await addDoc(collection(db, 'songs'), {
+                        ...songFields,
+                        slug,
+                        uid: user.uid,
+                        date: new Date().toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                        }),
+                        createdAt: serverTimestamp(),
+                        likes: 0,
+                        likedBy: [],
+                    });
+                    navigate('/songs');
+                }
             } else {
                 if (isQuillContentEmpty(articleHtml)) {
                     setError('Please write the article body.');
@@ -154,30 +259,46 @@ export default function CreatePost() {
                 }
 
                 const plainForRead = stripHtmlToPlain(safeHtml);
-                const postData = {
+                const col = type === 'blog' ? 'blogs' : 'news';
+                const postFields = {
                     title,
-                    slug,
                     excerpt: excerpt || title.substring(0, 100),
                     type,
                     bodyHtml: safeHtml,
                     body: bodyFromHtml,
                     image: image || null,
-                    author: author || user.displayName || user.email || 'Anonymous',
-                    date: new Date().toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                    }),
+                    author: author.trim(),
                     readTime: `${Math.max(1, Math.ceil(plainForRead.length / 1000))} min`,
-                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
                 };
 
-                await addDoc(collection(db, type === 'blog' ? 'blogs' : 'news'), postData);
-                navigate(type === 'blog' ? '/blog' : '/news');
+                if (isEdit) {
+                    await updateDoc(doc(db, col, editId), postFields);
+                    const path =
+                        type === 'news'
+                            ? `/news/${slug}`
+                            : `/blog/${slug}`;
+                    navigate(path);
+                } else {
+                    await addDoc(collection(db, col), {
+                        ...postFields,
+                        slug,
+                        uid: user.uid,
+                        date: new Date().toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                        }),
+                        createdAt: serverTimestamp(),
+                    });
+                    navigate(type === 'blog' ? '/blog' : '/news');
+                }
             }
         } catch (err) {
             console.error(err);
-            setError('Failed to create entry. ' + err.message);
+            setError(
+                `Failed to ${isEdit ? 'update' : 'create'} entry. ${err.message}`,
+            );
         } finally {
             setLoading(false);
         }
@@ -186,31 +307,41 @@ export default function CreatePost() {
     return (
         <main className="min-h-screen pt-[80px] lg:pt-[115px] bg-gray-50 pb-20">
             <div className="max-w-4xl mx-auto px-5">
-                <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Create & Publish
+                <h1
+                    className="text-4xl font-bold mb-2"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                    {isEdit ? 'Edit & Save' : 'Create & Publish'}
                 </h1>
-                {/* <p className="text-gray-600 mb-8">Choose your content type and share with the world</p> */}
 
-                {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+                {error && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+                        {error}
+                    </div>
+                )}
 
                 <form
                     onSubmit={handleSubmit}
                     className=" p-2 rounded-2xl shadow-sm flex flex-col gap-6"
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Publish As</label>
-                            <select
-                                value={type}
-                                onChange={(e) => setType(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            >
-                                <option value="blog">Blogs/Articles</option>
-                                <option value="news">News Update</option>
-                                <option value="song">Laa</option>
-                            </select>
+                    {!isEdit ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Publish As
+                                </label>
+                                <select
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                >
+                                    <option value="blog">Blogs/Articles</option>
+                                    <option value="news">News Update</option>
+                                    <option value="song">Laa</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    ) : null}
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -228,7 +359,9 @@ export default function CreatePost() {
 
                     {type !== 'song' && (
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Limlak</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Limlak
+                            </label>
                             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                                 {image ? (
                                     <div className="w-full sm:w-72 h-44 sm:h-48 rounded-lg border border-gray-200 bg-zinc-100 overflow-hidden flex items-center justify-center shrink-0">
@@ -252,9 +385,7 @@ export default function CreatePost() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {type === 'song'
-                                ? 'Lyrics'
-                                : 'Body'}
+                            {type === 'song' ? 'Lyrics' : 'Body'}
                         </label>
                         {type === 'song' ? (
                             <textarea
@@ -282,13 +413,15 @@ export default function CreatePost() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Lai Gelh <span className="text-gray-400 font-normal">(optional)</span>
+                            Lai Gelh{' '}
+                            <span className="text-gray-400 font-normal">
+                                (optional)
+                            </span>
                         </label>
                         <input
                             type="text"
                             value={author}
                             onChange={(e) => setAuthor(e.target.value)}
-                            placeholder={type === 'song' ? '' : ''}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
@@ -303,7 +436,13 @@ export default function CreatePost() {
                                     : 'bg-ink hover:bg-black'
                             }`}
                         >
-                            {loading ? 'Publishing...' : `Publish`}
+                            {loading
+                                ? isEdit
+                                    ? 'Saving...'
+                                    : 'Publishing...'
+                                : isEdit
+                                  ? 'Save changes'
+                                  : 'Publish'}
                         </button>
                     </div>
                 </form>

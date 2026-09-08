@@ -93,9 +93,11 @@ function AppShell() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/photo" element={<Gallery />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/create-post/edit/:type/:id" element={<CreatePost />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/songs" element={<SongsPage />} />
           <Route path="/songs/:slug" element={<SongsPage />} />
+          <Route path="/create-song/edit/:id" element={<CreateSong />} />
           <Route path="/create-song" element={<CreateSong />} />
           <Route path="/worldcup" element={<Worldcup />} />
           <Route path="/result" element={<Result />} />

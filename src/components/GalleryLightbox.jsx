@@ -5,7 +5,7 @@ const SWIPE_THRESHOLD = 48;
 const TRANSITION_MS = 280;
 
 /**
- * Full-screen gallery viewer — image only, with swipe + arrow navigation.
+ * Full-screen gallery viewer — image with optional caption, swipe + arrow navigation.
  */
 export default function GalleryLightbox({
   images = [],
@@ -156,7 +156,7 @@ export default function GalleryLightbox({
         <img
           key={current.fullUrl || current.url}
           src={current.fullUrl || current.url}
-          alt=""
+          alt={current.caption || 'Gallery photo'}
           className="max-h-full max-w-full object-contain pointer-events-none will-change-transform"
           style={{
             transform: `translate3d(${slideOffset}px, 0, 0)`,
@@ -165,6 +165,14 @@ export default function GalleryLightbox({
           }}
           draggable={false}
         />
+
+        {current.caption ? (
+          <div className="absolute inset-x-0 bottom-0 z-30 pointer-events-none px-4 pb-6 sm:pb-8 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            <p className="max-w-2xl mx-auto text-center text-white text-xs sm:text-sm font-bold uppercase tracking-widest leading-snug">
+              {current.caption}
+            </p>
+          </div>
+        ) : null}
 
         {count > 1 ? (
           <button

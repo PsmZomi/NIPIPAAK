@@ -114,7 +114,7 @@ async function seedPhotosFromCloudinary(album) {
   for (const r of resources) {
     const publicId = r.public_id;
     if (!publicId || existingIds.has(publicId)) continue;
-    const caption = r.context?.custom?.caption || 'Nipipaak Moment';
+    const caption = r.context?.custom?.caption?.trim() || '';
     const url = thumbUrl(publicId);
     try {
       await addDoc(collection(db, PHOTOS_COL), {
@@ -203,7 +203,7 @@ export default function Gallery() {
             publicId: data.publicId,
             url: data.url || thumbUrl(data.publicId),
             fullUrl: fullUrl(data.publicId),
-            caption: data.caption || 'Nipipaak Moment',
+            caption: data.caption?.trim() || '',
             createdAt: data.createdAt,
           };
         });
@@ -274,7 +274,7 @@ export default function Gallery() {
 
     const albumId = currentAlbum.id;
     const albumName = currentAlbum.name;
-    const photoCaption = caption.trim() || 'Nipipaak Moment';
+    const photoCaption = caption.trim();
 
     window.cloudinary.openUploadWidget(
       {
@@ -282,7 +282,7 @@ export default function Gallery() {
         uploadPreset: UPLOAD_PRESET,
         folder: albumName,
         tags: [albumName],
-        context: { caption: photoCaption },
+        context: photoCaption ? { caption: photoCaption } : undefined,
         resourceType: 'image',
         cropping: false,
         multiple: false,
@@ -381,30 +381,6 @@ export default function Gallery() {
           )}
         </div>
 
-        {user && currentAlbum ? (
-          <div className="max-w-md sm:max-w-lg mx-auto mb-5 sm:mb-7 lg:mb-8">
-            <div className="bg-white px-3 py-3 sm:px-4 sm:py-4 rounded-xl border border-zinc-100 shadow-sm">
-              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2.5 text-center">
-                Adding to <span className="text-ink">{currentAlbum.name}</span>
-              </p>
-              <input
-                type="text"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Caption for this photo..."
-                className="w-full bg-zinc-50 border border-zinc-100 rounded-lg px-3 py-2.5 text-sm mb-2.5 outline-none focus:border-zinc-200"
-              />
-              <button
-                type="button"
-                onClick={openUploadWidget}
-                className="w-full bg-green-500 hover:bg-ink text-white font-bold py-2.5 sm:py-3 rounded-xl transition-colors text-[10px] sm:text-xs uppercase tracking-widest"
-              >
-                Upload to {currentAlbum.name} →
-              </button>
-            </div>
-          </div>
-        ) : null}
-
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 animate-pulse">
             {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -429,18 +405,44 @@ export default function Gallery() {
               >
                 <img
                   src={img.url}
-                  alt={img.caption}
+                  alt={img.caption || 'Gallery photo'}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent pt-8 pb-2 px-2 sm:px-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                  <p className="text-white text-[9px] sm:text-[10px] uppercase font-bold tracking-widest line-clamp-2">
-                    {img.caption}
-                  </p>
-                </div>
+                {img.caption ? (
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent pt-8 pb-2 px-2 sm:px-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <p className="text-white text-[9px] sm:text-[10px] uppercase font-bold tracking-widest line-clamp-2">
+                      {img.caption}
+                    </p>
+                  </div>
+                ) : null}
               </button>
             ))}
           </div>
         )}
+
+        {user && currentAlbum ? (
+          <div className="max-w-md sm:max-w-lg mx-auto mt-5 sm:mt-7 lg:mt-8">
+            <div className="bg-white px-3 py-3 sm:px-4 sm:py-4 rounded-xl border border-zinc-100 shadow-sm">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2.5 text-center">
+                Adding to <span className="text-ink">{currentAlbum.name}</span>
+              </p>
+              <input
+                type="text"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Caption for this photo..."
+                className="w-full bg-zinc-50 border border-zinc-100 rounded-lg px-3 py-2.5 text-sm mb-2.5 outline-none focus:border-zinc-200"
+              />
+              <button
+                type="button"
+                onClick={openUploadWidget}
+                className="w-full bg-green-500 hover:bg-ink text-white font-bold py-2.5 sm:py-3 rounded-xl transition-colors text-[10px] sm:text-xs uppercase tracking-widest"
+              >
+                Upload to {currentAlbum.name} →
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {lightboxIndex != null ? (

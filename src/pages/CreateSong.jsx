@@ -1,30 +1,107 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import {
+    collection,
+    addDoc,
+    doc,
+    getDoc,
+    serverTimestamp,
+    updateDoc,
+} from 'firebase/firestore';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function CreateSong() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { id: editId } = useParams();
+    const isEdit = Boolean(editId);
 
     const [title, setTitle] = useState('');
     const [artist, setArtist] = useState('');
     const [lyrics, setLyrics] = useState('');
     const [loading, setLoading] = useState(false);
+    const [loadingDoc, setLoadingDoc] = useState(isEdit);
     const [error, setError] = useState('');
+    const [savedSlug, setSavedSlug] = useState('');
 
     const titleRef = useRef(null);
     const lyricsRef = useRef(null);
     const artistRef = useRef(null);
 
+    useEffect(() => {
+        if (!user) {
+            navigate('/login', { replace: true });
+        }
+    }, [user, navigate]);
+
+    useEffect(() => {
+        if (!isEdit || !user) return;
+
+        let cancelled = false;
+
+        async function loadForEdit() {
+            setLoadingDoc(true);
+            setError('');
+
+            try {
+                const snap = await getDoc(doc(db, 'songs', editId));
+                if (!snap.exists()) {
+                    navigate('/songs', { replace: true });
+                    return;
+                }
+
+                const data = snap.data();
+                if (data.uid !== user.uid) {
+                    setError('You can only edit your own songs.');
+                    navigate(-1);
+                    return;
+                }
+
+                if (cancelled) return;
+
+                setTitle(data.title || '');
+                setArtist(data.artist || '');
+                setLyrics(
+                    Array.isArray(data.lyrics)
+                        ? data.lyrics.join('\n')
+                        : String(data.lyrics ?? ''),
+                );
+                setSavedSlug(data.slug || '');
+            } catch (err) {
+                console.error(err);
+                if (!cancelled) {
+                    setError('Failed to load song for editing.');
+                }
+            } finally {
+                if (!cancelled) setLoadingDoc(false);
+            }
+        }
+
+        loadForEdit();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isEdit, editId, user, navigate]);
+
     if (!user) {
-        navigate('/login');
         return null;
     }
 
+    if (loadingDoc) {
+        return (
+            <main className="min-h-screen pt-[130px] lg:pt-[115px] bg-gray-50 pb-20 flex items-center justify-center">
+                <p className="font-mono text-sm text-muted">Loading…</p>
+            </main>
+        );
+    }
+
     const generateSlug = (text) => {
-        return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        return text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)+/g, '');
     };
 
     const handleSubmit = async (e) => {
@@ -33,7 +110,6 @@ export default function CreateSong() {
         setError('');
 
         try {
-            const slug = generateSlug(title);
             const lyricsArray = lyrics.split(/\r?\n/);
             if (!lyricsArray.some((l) => l.trim().length > 0)) {
                 setError('Please add lyrics.');
@@ -41,24 +117,38 @@ export default function CreateSong() {
                 return;
             }
 
-            const songData = {
+            const songFields = {
                 title,
-                slug,
-                artist: artist || user.displayName || user.email || 'Anonymous',
+                artist: artist.trim(),
                 lyrics: lyricsArray,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                createdAt: serverTimestamp(),
-                likes: 0,
-                likedBy: []
+                updatedAt: serverTimestamp(),
             };
 
-            await addDoc(collection(db, 'songs'), songData);
-
-            // Redirect back to songs page
-            navigate('/songs');
+            if (isEdit) {
+                await updateDoc(doc(db, 'songs', editId), songFields);
+                navigate(savedSlug ? `/songs/${savedSlug}` : '/songs');
+            } else {
+                const slug = generateSlug(title);
+                await addDoc(collection(db, 'songs'), {
+                    ...songFields,
+                    slug,
+                    uid: user.uid,
+                    date: new Date().toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                    }),
+                    createdAt: serverTimestamp(),
+                    likes: 0,
+                    likedBy: [],
+                });
+                navigate('/songs');
+            }
         } catch (err) {
             console.error(err);
-            setError('Failed to create song. ' + err.message);
+            setError(
+                `Failed to ${isEdit ? 'update' : 'create'} song. ${err.message}`,
+            );
         } finally {
             setLoading(false);
         }
@@ -67,16 +157,27 @@ export default function CreateSong() {
     return (
         <main className="min-h-screen pt-[130px] lg:pt-[115px] bg-gray-50 pb-20">
             <div className="max-w-4xl mx-auto px-5">
-                <h1 className="text-4xl font-bold mb-8" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Create New Song
+                <h1
+                    className="text-4xl font-bold mb-8"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                    {isEdit ? 'Edit Song' : 'Create New Song'}
                 </h1>
 
-                {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+                {error && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+                        {error}
+                    </div>
+                )}
 
-                <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
-
+                <form
+                    onSubmit={handleSubmit}
+                    className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6"
+                >
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Song Title</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Song Title
+                        </label>
                         <textarea
                             rows={2}
                             value={title}
@@ -104,14 +205,15 @@ export default function CreateSong() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Lai Gelh</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Lai Gelh
+                        </label>
                         <textarea
                             rows={2}
                             value={artist}
                             ref={artistRef}
                             onChange={(e) => setArtist(e.target.value)}
                             placeholder="Your Lai Gelh name (Enter for newline)"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
                         />
                     </div>
@@ -122,7 +224,13 @@ export default function CreateSong() {
                             disabled={loading}
                             className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all duration-300 disabled:opacity-70"
                         >
-                            {loading ? 'Publishing...' : 'Publish Song'}
+                            {loading
+                                ? isEdit
+                                    ? 'Saving...'
+                                    : 'Publishing...'
+                                : isEdit
+                                  ? 'Save changes'
+                                  : 'Publish Song'}
                         </button>
                     </div>
                 </form>
