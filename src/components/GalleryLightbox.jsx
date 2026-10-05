@@ -147,7 +147,7 @@ export default function GalleryLightbox({
             className="absolute left-0 top-0 bottom-0 z-20 w-14 sm:w-16 flex items-center justify-start pl-1 sm:pl-2 text-white/70 hover:text-white active:text-white active:scale-95 transition-all duration-200"
             aria-label="Previous photo"
           >
-            <span className="h-12 w-12 sm:h-11 sm:w-11 inline-flex items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+            <span className="h-12 w-12 sm:h-11 sm:w-11 inline-flex items-center justify-center rounded-xl">
               <ChevronLeft size={30} strokeWidth={1.5} />
             </span>
           </button>
@@ -184,7 +184,7 @@ export default function GalleryLightbox({
             className="absolute right-0 top-0 bottom-0 z-20 w-14 sm:w-16 flex items-center justify-end pr-1 sm:pr-2 text-white/70 hover:text-white active:text-white active:scale-95 transition-all duration-200"
             aria-label="Next photo"
           >
-            <span className="h-12 w-12 sm:h-11 sm:w-11 inline-flex items-center justify-center rounded-full bg-black/30 backdrop-blur-sm">
+            <span className="h-12 w-12 sm:h-11 sm:w-11 inline-flex items-center justify-center rounded-full">
               <ChevronRight size={30} strokeWidth={1.5} />
             </span>
           </button>
