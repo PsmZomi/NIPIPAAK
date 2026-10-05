@@ -77,7 +77,7 @@ function PawlpiLoginForm({ onUnlocked }) {
       }
       onUnlocked(cred.user.uid);
     } catch {
-      setError("Invalid email or password.");
+      setError("editor hi tak2 na mo.Na nambat encian kik o");
       setAccessDenied(true);
       setCountdown(5);
     } finally {
