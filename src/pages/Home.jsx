@@ -187,7 +187,7 @@ export default function Home() {
         {/* Masthead — snug under fixed header on mobile */}
         <header className="pt-2 pb-2 lg:pt-10 text-center">
         <p className="font-gothic text-sm sm:text-base text-muted">
-  <span className="italic">HuihlaK</span> <span className="font-serif font-semibold tracking-wide">Salbu</span> <span className="italic">— thuthak &amp; laathaK</span>
+  <span className="italic">HuihlaK</span> <span className="font-serif">Salbu</span> <span className="italic">— thuthak &amp; laathaK</span>
 </p>
         </header>
         {/* Top row — newest */}
