@@ -186,9 +186,9 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 lg:px-8 lg:pb-24">
         {/* Masthead — snug under fixed header on mobile */}
         <header className="pt-2 pb-2 lg:pt-10 text-center">
-          <p className="font-gothic text-sm sm:text-base italic text-muted">
-            HuihlaK Salbu — thuthak &amp; laathaK
-          </p>
+        <p className="font-gothic text-sm sm:text-base text-muted">
+  <span className="italic">HuihlaK</span> <span className="font-serif font-semibold tracking-wide">Salbu</span> <span className="italic">— thuthak &amp; laathaK</span>
+</p>
         </header>
         {/* Top row — newest */}
         <section className="mt-2 mb-10" aria-labelledby="headlines-heading">

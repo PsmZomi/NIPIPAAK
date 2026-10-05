@@ -133,18 +133,18 @@ const mobileMenuItems = [
 ];
 
 const KOM_MONTHS = [
-  "Theinosih Kha",
-  "Tuun Kha",
-  "Dota Kha",
-  "Dopi Kha",
-  "Zing Kha",
-  "Gam Kha",
-  "Taangsih Kha",
-  "Khuado Kha",
-  "Taang Kha",
-  "Phal Kha",
-  "No Kha",
-  "Kau Kha",
+  "Theinosih Kha (January)",
+  "Tuun Kha (February)",
+  "Dota Kha (March)",
+  "Dopi Kha (April)",
+  "Zing Kha (May)",
+  "Gam Kha (June)",
+  "Taangsih Kha (July)",
+  "Khuado Kha (August)",
+  "Taang Kha (September)",
+  "Phal Kha (October)",
+  "No Kha (November)",
+  "Kau Kha (December)",
 ];
 
 /** Sunday = 0 … Saturday = 6 */
