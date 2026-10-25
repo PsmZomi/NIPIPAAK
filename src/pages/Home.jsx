@@ -9,6 +9,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { parseMediaLink } from '../utils/mediaLink'
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 
@@ -50,7 +51,7 @@ function photoUrl(publicId, storedUrl) {
 export default function Home() {
   const [latestNews, setLatestNews] = useState([])
   const [latestBlogs, setLatestBlogs] = useState([])
-  const [latestSongs, setLatestSongs] = useState([])
+  const [latestMedia, setLatestMedia] = useState([])
   const [galleryPreview, setGalleryPreview] = useState([])
 
   useReveal()
@@ -62,7 +63,7 @@ export default function Home() {
   useEffect(() => {
     const qNews = query(collection(db, 'news'), orderBy('createdAt', 'desc'))
     const qBlogs = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'))
-    const qSongs = query(collection(db, 'songs'), orderBy('createdAt', 'desc'))
+    const qMedia = query(collection(db, 'songs'), orderBy('createdAt', 'desc'))
 
     const unsubNews = onSnapshot(
       qNews,
@@ -80,10 +81,10 @@ export default function Home() {
       (err) => console.warn(err)
     )
 
-    const unsubSongs = onSnapshot(
-      qSongs,
+    const unsubMedia = onSnapshot(
+      qMedia,
       (snapshot) => {
-        setLatestSongs(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+        setLatestMedia(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
       },
       (err) => console.warn(err)
     )
@@ -91,7 +92,7 @@ export default function Home() {
     return () => {
       unsubNews()
       unsubBlogs()
-      unsubSongs()
+      unsubMedia()
     }
   }, [])
 
@@ -165,9 +166,9 @@ export default function Home() {
     [latestNews, latestBlogs]
   )
 
-  const songsSorted = useMemo(() => {
-    return [...latestSongs].sort((a, b) => (b.likes || 0) - (a.likes || 0))
-  }, [latestSongs])
+  const mediaSorted = useMemo(() => {
+    return [...latestMedia].sort((a, b) => (b.likes || 0) - (a.likes || 0))
+  }, [latestMedia])
 
   const StoryLink = ({ item, children, className = '' }) => {
     if (!item?.slug) {
@@ -289,47 +290,64 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Songs */}
-        <section className="mb-10" aria-labelledby="songs-heading">
+        {/* Media */}
+        <section className="mb-10" aria-labelledby="media-heading">
           <div className="border-t border-ink/30 pt-6 mb-5 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h2 id="songs-heading" className="font-display text-xl uppercase sm:text-2xl font-bold">
-                laa buu
+              <h2 id="media-heading" className="font-display text-xl uppercase sm:text-2xl font-bold">
+                Media
               </h2>
               <p className="font-mono text-[9px] uppercase tracking-widest text-muted mt-1">
-                
+                Videos &amp; links
               </p>
             </div>
             <Link
-              to="/songs"
+              to="/media"
               className="font-mono text-[10px] uppercase tracking-widest text-accent hover:text-green-300 underline-offset-4 hover:underline transition-colors"
             >
-              All songs →
+              All media →
             </Link>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {latestSongs.length === 0 ? (
+            {latestMedia.length === 0 ? (
               <div className="col-span-full py-10 text-center font-mono text-xs text-muted border border-dashed border-ink/20">
-                No songs yet.
+                No media yet.
               </div>
             ) : (
-              songsSorted.slice(0, 8).map((song) => (
-                <Link
-                  key={song.id}
-                  to={song.slug ? `/songs/${song.slug}` : '/songs'}
-                  className="reveal group border border-ink/15 bg-white p-3 sm:p-4 flex flex-col hover:bg-warm/50 transition-colors"
-                >
-                  <span className="font-mono text-[8px] uppercase text-muted mb-1">{song.date}</span>
-                  <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2 flex-1 group-hover:text-green-300">
-                    {song.title}
-                  </h3>
-                  <p className="text-xs text-muted mt-1 line-clamp-1 font-sans">{song.artist}</p>
-                  <p className="mt-2 text-[9px] font-mono text-muted border-t border-border pt-2">
-                    ♥ {song.likes ?? 0}
-                  </p>
-                </Link>
-              ))
+              mediaSorted.slice(0, 8).map((item) => {
+                const info = item.link ? parseMediaLink(item.link) : null
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.slug ? `/media/${item.slug}` : '/media'}
+                    className="reveal group border border-ink/15 p-3 sm:p-4 flex flex-col hover:bg-warm/50 transition-colors"
+                  >
+                    <div className="relative mb-2 aspect-video overflow-hidden bg-gradient-to-br from-green-600 to-black flex items-center justify-center">
+                      {info?.thumbnailUrl ? (
+                        <img
+                          src={info.thumbnailUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-2xl">{info ? '▶' : '🎵'}</span>
+                      )}
+                    </div>
+                    <span className="font-mono text-[4px] lg uppercase text-muted mb-1">{item.date}</span>
+                    <h3 className="font-display font-semibold text-xs sm:text-sm leading-snug line-clamp-2 flex-1 group-hover:text-green-300">
+                      {item.title?.trim() || (info ? info.label : 'Untitled media')}
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] text-muted mt-1 line-clamp-1 font-sans">
+                      {info ? (item.caption || info.label) : item.artist}
+                    </p>
+                    <p className="mt-2 text-[9px] font-mono text-muted border-t border-border pt-2">
+                      ♥ {item.likes ?? 0}
+                    </p>
+                  </Link>
+                )
+              })
             )}
           </div>
         </section>

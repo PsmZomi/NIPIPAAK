@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useLocation } from 'react-router-dom'
+import { Routes, Route, Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -11,17 +11,27 @@ import NotFound from './pages/NotFound'
 import Gallery from './pages/Gallery'
 import Login from './pages/Login'
 import CreatePost from './pages/CreatePost'
-import Song from './pages/Song'
-import CreateSong from './pages/CreateSong'
+import Media from './pages/Media'
+import CreateMedia from './pages/CreateMedia'
 import Worldcup from './pages/WorldCup'
 import Result from './pages/Result'
 import { AuthProvider } from './context/AuthContext'
 import { PawlpiSessionProvider, usePawlpiSession } from './context/PawlpiSessionContext'
 import Pawlpi from './components/PawlpiLogin'
 
-function SongsPage() {
+function MediaPage() {
   const { pathname } = useLocation()
-  return <Song key={pathname} />
+  return <Media key={pathname} />
+}
+
+function LegacySongRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={slug ? `/media/${slug}` : '/media'} replace />
+}
+
+function LegacyCreateSongRedirect() {
+  const { id } = useParams()
+  return <Navigate to={id ? `/create-media/edit/${id}` : '/create-media'} replace />
 }
 
 function Breadcrumbs() {
@@ -95,10 +105,14 @@ function AppShell() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-post/edit/:type/:id" element={<CreatePost />} />
           <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/songs" element={<SongsPage />} />
-          <Route path="/songs/:slug" element={<SongsPage />} />
-          <Route path="/create-song/edit/:id" element={<CreateSong />} />
-          <Route path="/create-song" element={<CreateSong />} />
+          <Route path="/media" element={<MediaPage />} />
+          <Route path="/media/:slug" element={<MediaPage />} />
+          <Route path="/create-media/edit/:id" element={<CreateMedia />} />
+          <Route path="/create-media" element={<CreateMedia />} />
+          <Route path="/songs" element={<LegacySongRedirect />} />
+          <Route path="/songs/:slug" element={<LegacySongRedirect />} />
+          <Route path="/create-song/edit/:id" element={<LegacyCreateSongRedirect />} />
+          <Route path="/create-song" element={<LegacyCreateSongRedirect />} />
           <Route path="/worldcup" element={<Worldcup />} />
           <Route path="/result" element={<Result />} />
           <Route path="/pawlpi" element={<Pawlpi />} />

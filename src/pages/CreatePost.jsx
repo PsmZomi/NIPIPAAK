@@ -115,7 +115,7 @@ export default function CreatePost() {
                 const col = collectionForType(contentType);
                 const snap = await getDoc(doc(db, col, editId));
                 if (!snap.exists()) {
-                    navigate(contentType === 'song' ? '/songs' : '/blog', {
+                    navigate(contentType === 'song' ? '/media' : '/blog', {
                         replace: true,
                     });
                     return;
@@ -227,7 +227,7 @@ export default function CreatePost() {
 
                 if (isEdit) {
                     await updateDoc(doc(db, 'songs', editId), songFields);
-                    navigate(slug ? `/songs/${slug}` : '/songs');
+                    navigate(slug ? `/media/${slug}` : '/media');
                 } else {
                     await addDoc(collection(db, 'songs'), {
                         ...songFields,
@@ -242,7 +242,7 @@ export default function CreatePost() {
                         likes: 0,
                         likedBy: [],
                     });
-                    navigate('/songs');
+                    navigate('/media');
                 }
             } else {
                 if (isQuillContentEmpty(articleHtml)) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   collection,
@@ -47,6 +47,10 @@ function fullUrl(publicId) {
 
 function isArchiveName(name) {
   return String(name || '').trim().toLowerCase() === 'archive';
+}
+
+function escapeContextValue(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/([=|])/g, '\\$1');
 }
 
 async function migrateLocalAlbums(existingAlbums) {
@@ -147,7 +151,11 @@ export default function Gallery() {
   const [loading, setLoading] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [caption, setCaption] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const fileInputRef = useRef(null);
   const seedingRef = useRef(new Set());
 
   const currentAlbum = albums.find((a) => a.id === currentAlbumId);
@@ -261,53 +269,80 @@ export default function Gallery() {
     }
   };
 
-  const openUploadWidget = useCallback(() => {
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setCaption('');
+  };
+
+  const clearSelection = () => {
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return '';
+    });
+    setSelectedFile(null);
+    setCaption('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const uploadPhoto = async () => {
     if (!user) {
       return alert('Login to upload photos.');
     }
     if (!currentAlbum?.name || !currentAlbum?.id) {
       return alert('Create an album first, then upload.');
     }
-    if (!window.cloudinary?.openUploadWidget) {
-      return alert('Upload widget is not ready. Refresh and try again.');
+    if (!selectedFile) {
+      return alert('Choose an image first.');
+    }
+    if (!CLOUD_NAME || !UPLOAD_PRESET) {
+      return alert('Upload is not configured. Refresh and try again.');
     }
 
     const albumId = currentAlbum.id;
     const albumName = currentAlbum.name;
     const photoCaption = caption.trim();
 
-    window.cloudinary.openUploadWidget(
-      {
-        cloudName: CLOUD_NAME,
-        uploadPreset: UPLOAD_PRESET,
-        folder: albumName,
-        tags: [albumName],
-        context: photoCaption ? { caption: photoCaption } : undefined,
-        resourceType: 'image',
-        cropping: false,
-        multiple: false,
-      },
-      async (err, result) => {
-        if (err || result.event !== 'success') return;
-        const publicId = result.info?.public_id;
-        if (!publicId) return;
-        try {
-          await addDoc(collection(db, PHOTOS_COL), {
-            albumId,
-            albumName,
-            publicId,
-            url: thumbUrl(publicId),
-            caption: photoCaption,
-            createdAt: serverTimestamp(),
-          });
-          setCaption('');
-        } catch (writeErr) {
-          console.warn(writeErr);
-          alert(writeErr?.message || 'Uploaded, but could not save to gallery');
-        }
-      },
-    );
-  }, [user, currentAlbum, caption]);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', albumName);
+    formData.append('tags', albumName);
+    if (photoCaption) {
+      formData.append('context', `caption=${escapeContextValue(photoCaption)}`);
+    }
+
+    setUploading(true);
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: formData },
+      );
+      const data = await res.json();
+      if (!res.ok || !data.public_id) {
+        throw new Error(data?.error?.message || 'Upload failed');
+      }
+      await addDoc(collection(db, PHOTOS_COL), {
+        albumId,
+        albumName,
+        publicId: data.public_id,
+        url: thumbUrl(data.public_id),
+        caption: photoCaption,
+        createdAt: serverTimestamp(),
+      });
+      clearSelection();
+    } catch (err) {
+      console.warn(err);
+      alert(err?.message || 'Could not upload photo');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#fafafa] pt-[64px] sm:pt-[72px] lg:pt-[89px] pb-24 lg:pb-14">
@@ -426,20 +461,72 @@ export default function Gallery() {
               <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2.5 text-center">
                 Adding to <span className="text-ink">{currentAlbum.name}</span>
               </p>
+
               <input
-                type="text"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Caption for this photo..."
-                className="w-full bg-zinc-50 border border-zinc-100 rounded-lg px-3 py-2.5 text-sm mb-2.5 outline-none focus:border-zinc-200"
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
               />
-              <button
-                type="button"
-                onClick={openUploadWidget}
-                className="w-full bg-green-500 hover:bg-ink text-white font-bold py-2.5 sm:py-3 rounded-xl transition-colors text-[10px] sm:text-xs uppercase tracking-widest"
-              >
-                Upload to {currentAlbum.name} →
-              </button>
+
+              {selectedFile ? (
+                <>
+                  <div className="flex items-center gap-3 mb-2.5">
+                    <img
+                      src={previewUrl}
+                      alt="Selected preview"
+                      className="h-16 w-16 shrink-0 object-cover rounded-lg border border-zinc-100"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-ink truncate">
+                        {selectedFile.name}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-[10px] font-bold uppercase tracking-widest text-green-600 hover:text-ink"
+                        >
+                          Change
+                        </button>
+                        <button
+                          type="button"
+                          onClick={clearSelection}
+                          className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-ink"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    placeholder="Write a caption for this image..."
+                    className="w-full bg-zinc-50 border border-zinc-100 rounded-lg px-3 py-2.5 text-sm mb-2.5 outline-none focus:border-zinc-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={uploadPhoto}
+                    disabled={uploading}
+                    className="w-full bg-green-500 hover:bg-ink text-white font-bold py-2.5 sm:py-3 rounded-xl transition-colors text-[10px] sm:text-xs uppercase tracking-widest disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {uploading
+                      ? 'Uploading…'
+                      : `Upload to ${currentAlbum.name} →`}
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full bg-green-500 hover:bg-ink text-white font-bold py-2.5 sm:py-3 rounded-xl transition-colors text-[10px] sm:text-xs uppercase tracking-widest"
+                >
+                  Choose Image →
+                </button>
+              )}
             </div>
           </div>
         ) : null}
